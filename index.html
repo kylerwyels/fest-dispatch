@@ -7,231 +7,219 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#0a0d14;--bg2:#131720;--bg3:#1c2030;--bg4:#242840;
-  --border:rgba(255,255,255,0.1);--border2:rgba(255,255,255,0.2);
-  --text:#f2f4fc;--text2:#b0b8d8;--text3:#6870a0;
-  --accent:#6aa3ff;--accent2:#3060cc;
-  --green:#2ecc80;--amber:#ffb020;--red:#ff5252;--purple:#b48afa;--teal:#30d6c0;--pink:#f472b6;--orange:#fb923c;
+  --bg:#090c12;--bg2:#12151f;--bg3:#1a1e2e;--bg4:#222640;
+  --border:rgba(255,255,255,0.09);--border2:rgba(255,255,255,0.2);
+  --text:#f2f4fc;--text2:#b8bdd8;--text3:#6870a0;
+  --accent:#6aa3ff;--accent2:#2d5fcc;
+  --green:#2ecc80;--amber:#ffb020;--red:#ff5050;--purple:#b48afa;--teal:#30d6c0;
   --mono:'SF Mono','Fira Code','Consolas',monospace;
 }
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);height:100vh;overflow:hidden;display:flex;flex-direction:column;font-size:13px}
 
 /* TOPBAR */
-.topbar{display:flex;align-items:center;padding:0 14px;height:48px;background:var(--bg2);border-bottom:1px solid var(--border);gap:8px;flex-shrink:0}
-.logo{font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.12em;color:var(--accent);text-transform:uppercase}
-.event-chip{font-size:12px;color:var(--text2);background:var(--bg3);padding:4px 10px;border-radius:4px;border:1px solid var(--border);cursor:pointer;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.event-chip:hover{border-color:var(--border2);color:var(--text)}
-.tab{background:transparent;border:1px solid transparent;color:var(--text2);padding:5px 12px;border-radius:4px;font-size:12px;cursor:pointer;font-weight:500;transition:all .15s}
+.topbar{display:flex;align-items:center;padding:0 12px;height:46px;background:var(--bg2);border-bottom:1px solid var(--border);gap:7px;flex-shrink:0}
+.logo{font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.12em;color:var(--accent);text-transform:uppercase;flex-shrink:0}
+.event-chip{font-size:11px;color:var(--text2);background:var(--bg3);padding:3px 9px;border-radius:4px;border:1px solid var(--border);cursor:pointer;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex-shrink:0}
+.event-chip:hover{border-color:var(--border2)}
+.tab{background:transparent;border:1px solid transparent;color:var(--text2);padding:4px 10px;border-radius:4px;font-size:12px;cursor:pointer;font-weight:500;transition:all .15s;flex-shrink:0}
 .tab:hover{color:var(--text);border-color:var(--border)}
 .tab.on{background:var(--bg3);color:var(--text);border-color:var(--border2)}
-.clock{margin-left:auto;font-family:var(--mono);font-size:13px;color:var(--text2);flex-shrink:0;letter-spacing:.05em}
-.sync-dot{width:7px;height:7px;border-radius:50%;background:var(--text3);flex-shrink:0;transition:background .3s}
+.topbar-sep{width:1px;height:20px;background:var(--border);flex-shrink:0}
+.clock{font-family:var(--mono);font-size:13px;color:var(--text2);flex-shrink:0}
+.sync-dot{width:6px;height:6px;border-radius:50%;background:var(--text3);flex-shrink:0}
 .sync-dot.ok{background:var(--green)}.sync-dot.busy{background:var(--amber)}.sync-dot.err{background:var(--red)}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:6px}
 
 /* LAYOUT */
 .main{display:flex;flex:1;overflow:hidden}
 
-/* UNIT SIDEBAR */
-.sidebar{width:24%;min-width:210px;max-width:300px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0}
-.panel-hdr{padding:9px 12px;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
-.panel-scroll{overflow-y:auto;flex:1;padding:7px}
+/* SIDEBAR */
+.sidebar{width:220px;min-width:200px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0}
+.panel-hdr{padding:8px 11px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.panel-scroll{overflow-y:auto;flex:1;padding:6px}
 
 /* UNIT CARDS */
-.uc{background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:9px 10px;margin-bottom:6px}
-.uc-top{display:flex;align-items:center;gap:6px;margin-bottom:4px}
+.uc{background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:8px 10px;margin-bottom:6px;transition:border-color .2s,box-shadow .2s}
+.uc.available-highlight{border-color:var(--green);box-shadow:0 0 0 2px rgba(46,204,128,.18)}
+.uc-top{display:flex;align-items:center;gap:5px;margin-bottom:4px}
 .uc-cs{font-family:var(--mono);font-size:13px;font-weight:700;flex:1;color:var(--text)}
-.uc-badge{font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:2px 7px;border-radius:4px}
-.uc-loc{font-size:11px;color:var(--text2);margin-bottom:3px}
-.uc-ts{font-family:var(--mono);font-size:10px;color:var(--text3);margin-bottom:5px}
-.uc-next{background:var(--bg4);border:1px solid var(--border2);border-radius:5px;padding:6px 8px;margin-bottom:5px;font-size:11px}
-.uc-next-lbl{font-size:10px;text-transform:uppercase;letter-spacing:.07em;font-weight:700;color:var(--text3);margin-bottom:3px}
-.uc-next-val{color:var(--accent);font-weight:600;margin-bottom:5px}
-.uc-actions{display:flex;gap:4px;flex-wrap:wrap}
+.uc-badge{font-size:9px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:2px 6px;border-radius:4px}
+.uc-loc{font-size:11px;color:var(--text2);margin-bottom:2px}
+.uc-call-status{font-size:11px;font-weight:600;margin-bottom:3px;padding:2px 6px;border-radius:3px;display:inline-block}
+.uc-ts{font-family:var(--mono);font-size:10px;color:var(--text3);margin-bottom:4px}
+.uc-next{background:var(--bg4);border:1px solid rgba(106,163,255,.3);border-radius:5px;padding:5px 8px;margin-bottom:5px;font-size:11px}
+.uc-next-lbl{font-size:9px;text-transform:uppercase;letter-spacing:.07em;font-weight:700;color:var(--text3);margin-bottom:2px}
+.uc-next-val{color:var(--accent);font-weight:600;margin-bottom:4px}
+.uc-actions{display:flex;gap:3px;flex-wrap:wrap;margin-top:5px}
 
-/* BREAK TIMER */
-.break-timer{font-family:var(--mono);font-size:14px;font-weight:700;padding:5px 8px;border-radius:5px;text-align:center;margin:5px 0;border:1px solid var(--border)}
-.break-timer.ok{color:var(--green);border-color:rgba(46,204,128,.3);background:rgba(46,204,128,.07)}
-.break-timer.warn{color:var(--amber);border-color:rgba(255,176,32,.4);background:rgba(255,176,32,.08)}
-.break-timer.over{color:var(--red);border-color:rgba(255,82,82,.4);background:rgba(255,82,82,.08)}
-@keyframes flash{0%,100%{opacity:1}50%{opacity:.25}}
-.flashing{animation:flash .7s infinite}
+/* BREAK */
+.break-timer{font-family:var(--mono);font-size:13px;font-weight:700;padding:4px 8px;border-radius:5px;text-align:center;margin:4px 0;border:1px solid var(--border)}
+.break-timer.ok{color:var(--green);border-color:rgba(46,204,128,.3);background:rgba(46,204,128,.06)}
+.break-timer.warn{color:var(--amber);border-color:rgba(255,176,32,.35);background:rgba(255,176,32,.07)}
+.break-timer.over{color:var(--red);border-color:rgba(255,80,80,.4);background:rgba(255,80,80,.07)}
+@keyframes flash{0%,100%{opacity:1}50%{opacity:.2}}.flashing{animation:flash .7s infinite}
 
 /* INACTIVE TRAY */
-.inactive-tray{background:var(--bg2);border-bottom:2px solid var(--border2);padding:8px 12px;flex-shrink:0;max-height:150px;overflow-y:auto}
-.inactive-tray-hdr{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin-bottom:7px}
-.inactive-chips{display:flex;flex-wrap:wrap;gap:6px}
-.ichip{background:var(--bg3);border:1px solid var(--border2);border-radius:6px;padding:6px 10px;min-width:130px;font-size:12px}
-.ichip-top{display:flex;align-items:center;gap:5px;margin-bottom:3px}
-.ichip-cs{font-family:var(--mono);font-weight:700;flex:1}
+.inactive-tray{background:var(--bg2);border-bottom:2px solid var(--border2);padding:7px 12px;flex-shrink:0;max-height:140px;overflow-y:auto}
+.inactive-tray-hdr{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin-bottom:6px}
+.inactive-chips{display:flex;flex-wrap:wrap;gap:5px}
+.ichip{background:var(--bg3);border:1px solid var(--border2);border-radius:6px;padding:5px 9px;min-width:120px}
+.ichip-top{display:flex;align-items:center;gap:4px;margin-bottom:3px}
+.ichip-cs{font-family:var(--mono);font-weight:700;font-size:12px;flex:1}
 
 /* VIEWS */
 .view{display:none;flex:1;overflow:hidden;flex-direction:column}
 .view.on{display:flex}
 
 /* BOARD */
-.board-bar{padding:8px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:6px;flex-shrink:0;background:var(--bg);flex-wrap:wrap}
-.board-scroll{overflow-y:auto;flex:1;padding:12px}
+.board-outer{display:flex;flex-direction:column;flex:1;overflow:hidden}
+.board-bar{padding:7px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:6px;flex-shrink:0;background:var(--bg);flex-wrap:wrap}
+.board-main{display:flex;flex:1;overflow:hidden}
+.board-scroll{overflow-y:auto;flex:1;padding:10px}
 
-/* ROW LAYOUT */
-.zone-row{margin-bottom:14px}
-.zone-row-hdr{display:flex;align-items:center;gap:8px;margin-bottom:7px;padding:0 2px}
-.zone-row-label{font-size:13px;font-weight:700;letter-spacing:.04em;padding:3px 12px;border-radius:20px;border:1px solid var(--border2)}
-.zone-row-add{background:transparent;border:1px dashed var(--border);color:var(--text3);padding:3px 10px;border-radius:20px;font-size:11px;cursor:pointer;transition:all .15s}
-.zone-row-add:hover{border-color:var(--border2);color:var(--text2)}
-.zone-row-cards{display:flex;flex-wrap:wrap;gap:8px;min-height:60px;padding:4px;border-radius:6px;border:1px dashed transparent;transition:border-color .15s}
-.zone-row-cards.drag-over{border-color:var(--accent);background:rgba(106,163,255,.04)}
+/* MINI LOG */
+.mini-log{width:200px;background:var(--bg2);border-left:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0}
+.mini-log-hdr{padding:8px 10px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);border-bottom:1px solid var(--border);flex-shrink:0}
+.mini-log-scroll{overflow-y:auto;flex:1;padding:6px}
+.ml-item{padding:4px 0;border-bottom:1px solid var(--border);font-size:10px;line-height:1.4}
+.ml-time{font-family:var(--mono);color:var(--text3);font-size:9px}
+.ml-msg{color:var(--text2)}
+
+/* 4-COL GRID */
+.board-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
 
 /* POST CARDS */
-.pc{background:var(--bg2);border:1px solid var(--border);border-radius:8px;overflow:hidden;transition:border-color .2s;position:relative;display:flex;flex-direction:column}
-.pc.sz-sm{width:190px}.pc.sz-md{width:260px}.pc.sz-lg{width:360px}
-.pc.dragging{opacity:.3}
-.pc.drag-over-card{box-shadow:0 0 0 2px var(--accent)}
-.pc-hdr{display:flex;align-items:center;padding:7px 10px;border-bottom:1px solid var(--border);gap:5px;cursor:grab}
-.pc-hdr:active{cursor:grabbing}
+.pc{background:var(--bg2);border:2px solid var(--border);border-radius:8px;overflow:hidden;transition:border-color .2s,box-shadow .2s;display:flex;flex-direction:column}
+.pc.posted-free{border-color:var(--accent);box-shadow:0 0 0 2px rgba(106,163,255,.15)}
+.pc-hdr{display:flex;align-items:center;padding:7px 9px;border-bottom:1px solid var(--border);gap:5px}
 .pc-title{font-size:12px;font-weight:700;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.pc-zone-tag{font-size:10px;color:var(--text3);white-space:nowrap}
-.pc-body{padding:8px 9px;flex:1}
-.pc-empty{font-size:11px;color:var(--text3);padding:5px 0;font-style:italic}
-
-/* SIZE CTRL */
-.sz-ctrl{display:flex;gap:2px;flex-shrink:0}
-.sz-btn{background:transparent;border:1px solid var(--border);color:var(--text3);padding:1px 5px;border-radius:3px;font-size:9px;cursor:pointer;font-weight:700;transition:all .1s}
-.sz-btn:hover{border-color:var(--border2);color:var(--text2)}
-.sz-btn.on{border-color:var(--accent);color:var(--accent)}
+.pc-zone-tag{font-size:9px;color:var(--text3);flex-shrink:0}
+.pc-body{padding:7px 8px;flex:1}
+.pc-empty{font-size:11px;color:var(--text3);padding:4px 0;font-style:italic}
+.pc-planned-reminder{background:rgba(255,176,32,.1);border:1px solid rgba(255,176,32,.35);border-radius:4px;padding:4px 7px;margin-bottom:5px;font-size:10px;color:var(--amber);display:flex;align-items:center;justify-content:space-between;gap:4px}
+.pc-planned-reminder.highlight{border-color:var(--amber);box-shadow:0 0 0 2px rgba(255,176,32,.2);background:rgba(255,176,32,.15)}
 
 /* UNIT IN POST */
-.pu{border-radius:6px;padding:8px 9px;margin-bottom:6px;border:1px solid rgba(255,255,255,.08)}
-.pu-current{font-size:10px;color:var(--text3);margin-bottom:6px;font-style:italic}
-.pu-current span{color:var(--text2);font-style:normal;font-weight:600}
+.pu{border-radius:6px;padding:7px 8px;margin-bottom:6px;border:1px solid rgba(255,255,255,.07);background:rgba(0,0,0,.2)}
+.pu-top{display:flex;align-items:center;gap:5px;margin-bottom:5px}
+.pu-cs{font-family:var(--mono);font-size:13px;font-weight:700;flex:1}
+.pu-current{font-size:10px;color:var(--text3);margin-bottom:5px}
+.pu-current b{color:var(--text2);font-weight:600}
 
-/* POSTING STATUS */
-.post-status-row{display:flex;align-items:center;gap:5px;margin-bottom:7px;padding:6px 8px;border-radius:5px;background:var(--bg4);border:1px solid var(--border)}
-.post-status-lbl{font-size:10px;text-transform:uppercase;letter-spacing:.07em;font-weight:700;color:var(--text3);margin-right:2px;flex-shrink:0}
-.ps-btn{padding:3px 8px;border-radius:4px;font-size:11px;cursor:pointer;font-weight:600;border:1px solid var(--border);background:var(--bg3);color:var(--text2);transition:all .15s;flex-shrink:0}
+/* POST STATUS */
+.post-status-row{display:flex;align-items:center;gap:4px;margin-bottom:6px;padding:5px 7px;border-radius:5px;background:var(--bg4);border:1px solid var(--border)}
+.ps-lbl{font-size:9px;text-transform:uppercase;letter-spacing:.07em;font-weight:700;color:var(--text3);flex-shrink:0;margin-right:2px}
+.ps-btn{padding:3px 7px;border-radius:4px;font-size:11px;cursor:pointer;font-weight:600;border:1px solid var(--border);background:var(--bg3);color:var(--text2);transition:all .12s}
 .ps-btn:hover{border-color:var(--border2);color:var(--text)}
-.ps-btn.on-posted{background:rgba(106,163,255,.2);border-color:var(--accent);color:var(--accent)}
-.ps-btn.on-next{background:rgba(255,176,32,.12);border-color:var(--amber);color:var(--amber)}
-.ps-btn.on-clear{background:rgba(255,82,82,.12);border-color:var(--red);color:var(--red)}
-.ps-btn.needs-choice{border-color:var(--amber);color:var(--amber);animation:glow 1.5s ease-in-out infinite alternate}
-@keyframes glow{from{box-shadow:none}to{box-shadow:0 0 6px rgba(255,176,32,.4)}}
+.ps-btn.on-planned{background:rgba(255,176,32,.13);border-color:var(--amber);color:var(--amber)}
+.ps-btn.on-posted{background:rgba(106,163,255,.15);border-color:var(--accent);color:var(--accent)}
+.ps-btn.on-clear{background:rgba(255,80,80,.12);border-color:var(--red);color:var(--red)}
+@keyframes glow{from{box-shadow:none}to{box-shadow:0 0 7px rgba(255,176,32,.4)}}
+.needs-glow{border-color:var(--amber)!important;color:var(--amber)!important;animation:glow 1.4s ease-in-out infinite alternate}
 
-/* NEXT PLANNED REMINDER ON POST CARD */
-.next-planned-tag{background:rgba(255,176,32,.1);border:1px solid rgba(255,176,32,.3);border-radius:4px;padding:4px 7px;font-size:10px;color:var(--amber);margin-bottom:6px;display:flex;align-items:center;justify-content:space-between;gap:5px}
-.next-confirm-btn{background:rgba(46,204,128,.15);border:1px solid var(--green);color:var(--green);padding:2px 8px;border-radius:3px;font-size:10px;cursor:pointer;font-weight:600;white-space:nowrap}
-.next-confirm-btn:hover{background:rgba(46,204,128,.28)}
+/* NEXT TAG ON POST */
+.next-tag{background:rgba(255,176,32,.1);border:1px solid rgba(255,176,32,.3);border-radius:4px;padding:4px 7px;margin-bottom:5px;font-size:10px;color:var(--amber)}
+.next-tag-confirm{background:rgba(46,204,128,.14);border:1px solid var(--green);color:var(--green);padding:2px 7px;border-radius:3px;font-size:10px;cursor:pointer;font-weight:600;margin-top:3px;display:inline-block}
+.next-tag-confirm:hover{background:rgba(46,204,128,.25)}
 
 /* CALL STATUS */
-.call-status-section{border-top:1px solid var(--border);padding-top:6px;margin-top:2px}
-.call-status-lbl{font-size:10px;text-transform:uppercase;letter-spacing:.07em;font-weight:700;color:var(--text3);margin-bottom:5px}
-.call-btns{display:flex;flex-wrap:wrap;gap:3px}
-.cb{padding:3px 7px;border-radius:3px;font-size:10px;cursor:pointer;font-weight:600;border:1px solid var(--border);background:var(--bg3);color:var(--text2);transition:all .12s}
+.call-section{border-top:1px solid var(--border);padding-top:6px;margin-top:4px}
+.call-lbl{font-size:9px;text-transform:uppercase;letter-spacing:.07em;font-weight:700;color:var(--text3);margin-bottom:5px}
+.call-btns{display:flex;flex-wrap:wrap;gap:3px;margin-bottom:5px}
+.cb{padding:3px 7px;border-radius:3px;font-size:10px;cursor:pointer;font-weight:600;border:1px solid var(--border);background:var(--bg3);color:var(--text2);transition:all .1s}
 .cb:hover{border-color:var(--border2);color:var(--text)}
 .cb.active{font-weight:700}
+.call-ts-stack{font-family:var(--mono);font-size:9px;color:var(--text3);line-height:1.6;border-left:2px solid var(--border);padding-left:6px;margin-top:4px}
+.call-ts-stack span{display:block}
+.call-ts-stack span.latest{color:var(--text2)}
 
-/* ASSIGN ROW */
-.assign-section{border-top:1px solid var(--border);padding:6px 8px 8px}
-.assign-section-lbl{font-size:10px;text-transform:uppercase;letter-spacing:.07em;font-weight:700;color:var(--text3);margin-bottom:5px}
-.assign-btns{display:flex;gap:5px;flex-wrap:wrap}
-.asel{background:var(--bg);border:1px solid var(--border);border-radius:4px;color:var(--text2);font-size:11px;padding:4px 6px;flex:1;outline:none;cursor:pointer;min-width:0}
+/* ASSIGN */
+.assign-section{border-top:1px solid var(--border);padding:5px 7px 7px}
+.assign-lbl{font-size:9px;text-transform:uppercase;letter-spacing:.07em;font-weight:700;color:var(--text3);margin-bottom:5px}
+.assign-btns{display:flex;flex-direction:column;gap:4px}
+.asel{background:var(--bg);border:1px solid var(--border);border-radius:4px;color:var(--text2);font-size:11px;padding:4px 6px;width:100%;outline:none;cursor:pointer}
 .asel:focus{border-color:var(--accent)}
 
-/* RIGHT PANEL */
-.rpanel{width:190px;background:var(--bg2);border-left:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0}
-.res-card{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:8px 9px;margin-bottom:6px}
-.res-name{font-size:12px;font-weight:700;color:var(--text);margin-bottom:2px}
-.res-home{font-size:10px;color:var(--text3);margin-bottom:5px}
+/* RIGHT PANEL - TRANSPORT */
+.rpanel{width:180px;background:var(--bg2);border-left:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0}
+.res-card{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:7px 9px;margin-bottom:5px}
+.res-name{font-size:12px;font-weight:700;margin-bottom:2px}
+.res-home{font-size:10px;color:var(--text3);margin-bottom:4px}
 .res-status{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text2);margin-bottom:5px}
-.rdot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.rdot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
 .rdot.home{background:var(--green)}.rdot.away{background:var(--amber)}.rdot.unknown{background:var(--text3)}
 .res-btns{display:flex;gap:3px;flex-wrap:wrap}
-.rbtn{background:var(--bg4);border:1px solid var(--border);color:var(--text2);padding:3px 7px;border-radius:3px;font-size:10px;cursor:pointer;transition:all .12s;font-weight:500}
+.rbtn{background:var(--bg4);border:1px solid var(--border);color:var(--text2);padding:2px 6px;border-radius:3px;font-size:10px;cursor:pointer;font-weight:500}
 .rbtn:hover{border-color:var(--border2);color:var(--text)}
-
-/* BUTTONS */
-.btn{background:var(--bg3);border:1px solid var(--border);color:var(--text2);padding:5px 11px;border-radius:4px;font-size:12px;cursor:pointer;display:inline-flex;align-items:center;gap:4px;transition:all .15s;white-space:nowrap}
-.btn:hover{border-color:var(--border2);color:var(--text)}
-.btn.primary{background:var(--accent2);border-color:var(--accent);color:#fff}
-.btn.primary:hover{background:var(--accent)}
-.btn.sm{padding:3px 8px;font-size:11px}
-.btn.xs{padding:2px 6px;font-size:10px}
-.btn.warn{border-color:rgba(255,176,32,.4);color:var(--amber);background:rgba(255,176,32,.08)}
-.btn.warn:hover{background:rgba(255,176,32,.16)}
-.ibtn{background:transparent;border:none;color:var(--text3);cursor:pointer;padding:2px 4px;border-radius:3px;font-size:13px;display:inline-flex;align-items:center;transition:color .15s}
-.ibtn:hover{color:var(--text2)}
-.xbtn{background:transparent;border:none;color:var(--text3);cursor:pointer;padding:1px 4px;border-radius:3px;font-size:13px;line-height:1;transition:color .15s;flex-shrink:0}
-.xbtn:hover{color:var(--red)}
-.dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;display:inline-block;vertical-align:middle}
-
-/* STATUS COLORS */
-.s-available{background:rgba(46,204,128,.15);color:var(--green)}
-.s-posted{background:rgba(106,163,255,.15);color:var(--accent)}
-.s-responding{background:rgba(255,176,32,.2);color:var(--amber)}
-.s-onscene{background:rgba(255,82,82,.2);color:var(--red)}
-.s-transporting{background:rgba(180,138,250,.2);color:var(--purple)}
-.s-arrival{background:rgba(48,214,192,.2);color:var(--teal)}
-.s-outofservice{background:rgba(100,110,140,.2);color:var(--text2)}
-.s-break{background:rgba(255,176,32,.13);color:var(--amber)}
-.s-training{background:rgba(106,163,255,.13);color:var(--accent)}
-.dg{background:var(--green)}.db{background:var(--accent)}.da{background:var(--amber)}
-.dr{background:var(--red)}.dp{background:var(--purple)}.dt{background:var(--teal)}.d0{background:var(--text3)}
 
 /* SETUP */
 .setup-wrap{padding:14px;overflow-y:auto;flex:1}
-.setup-sec{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:13px;margin-bottom:13px}
+.setup-sec{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:12px}
 .setup-sec-title{font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px}
-.si{display:flex;align-items:center;gap:7px;background:var(--bg3);border:1px solid var(--border);border-radius:5px;padding:7px 10px;margin-bottom:5px;cursor:default}
-.si.draggable{cursor:grab}.si.draggable:active{cursor:grabbing}
+.si{display:flex;align-items:center;gap:7px;background:var(--bg3);border:1px solid var(--border);border-radius:5px;padding:6px 10px;margin-bottom:5px}
 .si-handle{color:var(--text3);font-size:14px;cursor:grab;user-select:none;flex-shrink:0}
 .si-name{flex:1;font-size:12px;color:var(--text)}
 .si-meta{font-size:11px;color:var(--text2)}
 .qa{display:flex;gap:5px;margin-top:8px;align-items:center;flex-wrap:wrap}
 
-/* STATUS SETTINGS */
-.status-si{display:flex;align-items:center;gap:7px;background:var(--bg3);border:1px solid var(--border);border-radius:5px;padding:7px 10px;margin-bottom:5px}
-.status-label{flex:1;font-size:12px;color:var(--text)}
-.color-dot-btn{width:18px;height:18px;border-radius:50%;border:2px solid var(--border2);cursor:pointer;flex-shrink:0}
+/* BUTTONS */
+.btn{background:var(--bg3);border:1px solid var(--border);color:var(--text2);padding:5px 10px;border-radius:4px;font-size:12px;cursor:pointer;display:inline-flex;align-items:center;gap:4px;transition:all .15s;white-space:nowrap}
+.btn:hover{border-color:var(--border2);color:var(--text)}
+.btn.primary{background:var(--accent2);border-color:var(--accent);color:#fff}
+.btn.primary:hover{background:var(--accent)}
+.btn.sm{padding:3px 8px;font-size:11px}
+.btn.xs{padding:2px 6px;font-size:10px}
+.btn.danger{border-color:rgba(255,80,80,.4);color:var(--red);background:rgba(255,80,80,.07)}
+.btn.danger:hover{background:rgba(255,80,80,.15)}
+.btn.warn-btn{border-color:rgba(255,176,32,.35);color:var(--amber);background:rgba(255,176,32,.07)}
+.btn.warn-btn:hover{background:rgba(255,176,32,.14)}
+.ibtn{background:transparent;border:none;color:var(--text3);cursor:pointer;padding:2px 3px;border-radius:3px;font-size:13px;display:inline-flex;align-items:center;transition:color .15s}
+.ibtn:hover{color:var(--text2)}
+.xbtn{background:transparent;border:none;color:var(--text3);cursor:pointer;padding:1px 4px;border-radius:3px;font-size:13px;line-height:1;transition:color .15s;flex-shrink:0}
+.xbtn:hover{color:var(--red)}
+.dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;display:inline-block;vertical-align:middle}
+.dg{background:var(--green)}.db{background:var(--accent)}.da{background:var(--amber)}.dr{background:var(--red)}.dp{background:var(--purple)}.dt{background:var(--teal)}.d0{background:var(--text3)}
 
-/* LOG */
-.log-item{display:flex;gap:8px;padding:5px 0;border-bottom:1px solid var(--border);font-size:11px}
-.log-time{font-family:var(--mono);color:var(--text3);flex-shrink:0;font-size:10px}
+/* STATUS BADGES */
+.s-available{background:rgba(46,204,128,.15);color:var(--green)}
+.s-posted{background:rgba(106,163,255,.15);color:var(--accent)}
+.s-break{background:rgba(255,176,32,.13);color:var(--amber)}
+.s-training{background:rgba(106,163,255,.13);color:var(--accent)}
+.s-outofservice{background:rgba(100,110,140,.2);color:var(--text2)}
 
 /* MODAL */
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,.78);display:none;align-items:center;justify-content:center;z-index:999}
 .overlay.on{display:flex}
-.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:10px;padding:18px;width:420px;max-width:95vw;max-height:88vh;overflow-y:auto}
-.modal-title{font-size:14px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;color:var(--text)}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:10px;padding:18px;width:400px;max-width:95vw;max-height:88vh;overflow-y:auto}
+.modal-title{font-size:14px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between}
 .fg{margin-bottom:10px}
 .fl{font-size:11px;color:var(--text2);margin-bottom:3px;display:block;font-weight:500}
-.fi{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:5px;color:var(--text);font-size:13px;padding:7px 10px;outline:none}
+.fi{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:5px;color:var(--text);font-size:13px;padding:6px 10px;outline:none}
 .fi:focus{border-color:var(--accent)}
 .fr{display:flex;gap:8px}.fr .fg{flex:1}
 select.fi option{background:var(--bg3)}
 ::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
-@media(max-width:680px){.sidebar{display:none}.rpanel{display:none}.pc.sz-sm,.pc.sz-md,.pc.sz-lg{width:calc(100vw - 24px)}}
 
-/* ZONE HEADER COLORS */
-.zh-blue{background:rgba(106,163,255,.18);border-color:rgba(106,163,255,.4);color:#8bbeff}
-.zh-green{background:rgba(46,204,128,.18);border-color:rgba(46,204,128,.4);color:#5fdf9a}
-.zh-red{background:rgba(255,82,82,.18);border-color:rgba(255,82,82,.4);color:#ff8080}
-.zh-purple{background:rgba(180,138,250,.18);border-color:rgba(180,138,250,.4);color:#c4a4fc}
-.zh-amber{background:rgba(255,176,32,.18);border-color:rgba(255,176,32,.4);color:#ffc84a}
-.zh-teal{background:rgba(48,214,192,.18);border-color:rgba(48,214,192,.4);color:#60e6d2}
-.zh-pink{background:rgba(244,114,182,.18);border-color:rgba(244,114,182,.4);color:#f79dcb}
-.zh-orange{background:rgba(251,146,60,.18);border-color:rgba(251,146,60,.4);color:#fcab6e}
-.zh-indigo{background:rgba(129,140,248,.18);border-color:rgba(129,140,248,.4);color:#a5b0fc}
-.zh-gray{background:rgba(148,163,184,.12);border-color:rgba(148,163,184,.3);color:#b0bfd0}
+/* ZONE COLORS */
+.zh-blue{background:rgba(106,163,255,.16);border-color:rgba(106,163,255,.4)!important;color:#8ec0ff}
+.zh-green{background:rgba(46,204,128,.16);border-color:rgba(46,204,128,.4)!important;color:#5fe09a}
+.zh-red{background:rgba(255,80,80,.16);border-color:rgba(255,80,80,.4)!important;color:#ff8888}
+.zh-purple{background:rgba(180,138,250,.16);border-color:rgba(180,138,250,.4)!important;color:#c8aaff}
+.zh-amber{background:rgba(255,176,32,.16);border-color:rgba(255,176,32,.4)!important;color:#ffc84a}
+.zh-teal{background:rgba(48,214,192,.16);border-color:rgba(48,214,192,.4)!important;color:#60e6d2}
+.zh-pink{background:rgba(244,114,182,.16);border-color:rgba(244,114,182,.4)!important;color:#f7a8d4}
+.zh-orange{background:rgba(251,146,60,.16);border-color:rgba(251,146,60,.4)!important;color:#fcb87a}
+.zh-indigo{background:rgba(129,140,248,.16);border-color:rgba(129,140,248,.4)!important;color:#aab4fc}
+.zh-gray{background:rgba(148,163,184,.1);border-color:rgba(148,163,184,.3)!important;color:#b8c8d8}
+.pc-hdr-blue{background:rgba(106,163,255,.1)}.pc-hdr-green{background:rgba(46,204,128,.1)}.pc-hdr-red{background:rgba(255,80,80,.1)}.pc-hdr-purple{background:rgba(180,138,250,.1)}.pc-hdr-amber{background:rgba(255,176,32,.1)}.pc-hdr-teal{background:rgba(48,214,192,.1)}.pc-hdr-pink{background:rgba(244,114,182,.1)}.pc-hdr-orange{background:rgba(251,146,60,.1)}.pc-hdr-indigo{background:rgba(129,140,248,.1)}.pc-hdr-gray{background:rgba(148,163,184,.07)}
+.pc-bdr-blue{border-color:rgba(106,163,255,.22)!important}.pc-bdr-green{border-color:rgba(46,204,128,.22)!important}.pc-bdr-red{border-color:rgba(255,80,80,.22)!important}.pc-bdr-purple{border-color:rgba(180,138,250,.22)!important}.pc-bdr-amber{border-color:rgba(255,176,32,.22)!important}.pc-bdr-teal{border-color:rgba(48,214,192,.22)!important}.pc-bdr-pink{border-color:rgba(244,114,182,.22)!important}.pc-bdr-orange{border-color:rgba(251,146,60,.22)!important}.pc-bdr-indigo{border-color:rgba(129,140,248,.22)!important}.pc-bdr-gray{border-color:rgba(148,163,184,.18)!important}
 
-/* POST CARD ZONE TINTS */
-.pc-blue{border-color:rgba(106,163,255,.25)!important}.pc-blue .pc-hdr{background:rgba(106,163,255,.1)}
-.pc-green{border-color:rgba(46,204,128,.25)!important}.pc-green .pc-hdr{background:rgba(46,204,128,.1)}
-.pc-red{border-color:rgba(255,82,82,.25)!important}.pc-red .pc-hdr{background:rgba(255,82,82,.1)}
-.pc-purple{border-color:rgba(180,138,250,.25)!important}.pc-purple .pc-hdr{background:rgba(180,138,250,.1)}
-.pc-amber{border-color:rgba(255,176,32,.25)!important}.pc-amber .pc-hdr{background:rgba(255,176,32,.1)}
-.pc-teal{border-color:rgba(48,214,192,.25)!important}.pc-teal .pc-hdr{background:rgba(48,214,192,.1)}
-.pc-pink{border-color:rgba(244,114,182,.25)!important}.pc-pink .pc-hdr{background:rgba(244,114,182,.1)}
-.pc-orange{border-color:rgba(251,146,60,.25)!important}.pc-orange .pc-hdr{background:rgba(251,146,60,.1)}
-.pc-indigo{border-color:rgba(129,140,248,.25)!important}.pc-indigo .pc-hdr{background:rgba(129,140,248,.1)}
-.pc-gray{border-color:rgba(148,163,184,.2)!important}.pc-gray .pc-hdr{background:rgba(148,163,184,.08)}
+/* ROW HEADER */
+.row-hdr{display:flex;align-items:center;gap:8px;margin-bottom:7px;padding:0 1px}
+.row-label{font-size:13px;font-weight:700;padding:3px 12px;border-radius:20px;border:1px solid var(--border2);letter-spacing:.02em}
+.zone-row{margin-bottom:16px}
+
+@media(max-width:700px){.sidebar{display:none}.rpanel{display:none}.mini-log{display:none}.board-grid{grid-template-columns:1fr 1fr}}
 </style>
 </head>
 <body>
@@ -242,8 +230,14 @@ select.fi option{background:var(--bg3)}
   <button class="tab on" data-tab="board">Board</button>
   <button class="tab" data-tab="setup">Setup</button>
   <button class="tab" data-tab="log">Log</button>
-  <span class="sync-dot" id="syncDot"></span>
-  <span class="clock" id="clock">--:--:--</span>
+  <span class="topbar-sep"></span>
+  <button class="btn sm" id="btnUndo" title="Undo">↩ Undo</button>
+  <button class="btn sm" id="btnRedo" title="Redo">↪ Redo</button>
+  <button class="btn sm danger" id="btnReset">⟳ Reset board</button>
+  <div class="topbar-right">
+    <span class="sync-dot" id="syncDot"></span>
+    <span class="clock" id="clock">--:--:--</span>
+  </div>
 </div>
 
 <div class="main">
@@ -251,7 +245,7 @@ select.fi option{background:var(--bg3)}
 <!-- SIDEBAR -->
 <div class="sidebar">
   <div class="panel-hdr">
-    Units <span id="uCount" style="color:var(--text2);margin-left:4px">0</span>
+    Units <span id="uCount" style="color:var(--text2);margin-left:3px">0</span>
     <div style="display:flex;gap:3px">
       <button class="ibtn" id="btnBreakUnit" title="Break/Training">⏱</button>
       <button class="ibtn" id="btnAddUnitTop" title="Add unit">＋</button>
@@ -262,22 +256,30 @@ select.fi option{background:var(--bg3)}
 
 <!-- BOARD VIEW -->
 <div class="view on" id="view-board">
-  <!-- INACTIVE TRAY -->
-  <div id="inactiveTray" style="display:none">
-    <div class="inactive-tray">
-      <div class="inactive-tray-hdr">On Break / Training / Out of Service</div>
-      <div class="inactive-chips" id="inactiveChips"></div>
+  <div class="board-outer">
+    <!-- INACTIVE TRAY -->
+    <div id="inactiveTray" style="display:none">
+      <div class="inactive-tray">
+        <div class="inactive-tray-hdr">Break / Training / Out of Service</div>
+        <div class="inactive-chips" id="inactiveChips"></div>
+      </div>
     </div>
-  </div>
-  <!-- TOOLBAR -->
-  <div class="board-bar">
-    <span style="font-size:11px;color:var(--text3)">Rows:</span>
-    <button class="btn sm" id="btnAddRow">＋ Add row</button>
-    <div id="zonePills" style="display:flex;gap:4px;flex-wrap:wrap;margin-left:4px"></div>
-  </div>
-  <!-- BOARD -->
-  <div class="board-scroll" id="boardScroll">
-    <div id="boardRows"></div>
+    <!-- BOARD BAR -->
+    <div class="board-bar">
+      <button class="btn sm" id="btnAddRow">＋ Row</button>
+      <span style="font-size:11px;color:var(--text3)">Arrange posts in Setup → drag into rows</span>
+    </div>
+    <!-- BOARD + MINI LOG -->
+    <div class="board-main">
+      <div class="board-scroll" id="boardScroll">
+        <div id="boardRows"></div>
+      </div>
+      <!-- MINI LOG -->
+      <div class="mini-log">
+        <div class="mini-log-hdr">Activity</div>
+        <div class="mini-log-scroll" id="miniLog"></div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -293,7 +295,31 @@ select.fi option{background:var(--bg3)}
       <button class="btn primary" id="btnSaveEvent" style="margin-top:8px">Save event</button>
     </div>
     <div class="setup-sec">
-      <div class="setup-sec-title">Units / teams <span style="color:var(--text3);font-size:10px;font-weight:400;text-transform:none;letter-spacing:0">— drag to reorder</span></div>
+      <div class="setup-sec-title">Rows (zones) — drag to reorder</div>
+      <div id="s-rowList"></div>
+      <div class="qa">
+        <input class="fi" id="s-rowlabel" placeholder="Row name e.g. Main Stage" style="font-size:12px;padding:5px 8px;flex:2">
+        <select class="fi" id="s-rowcolor" style="font-size:12px;padding:5px 8px;flex:1">
+          <option value="blue">Blue</option><option value="green">Green</option><option value="red">Red</option>
+          <option value="purple">Purple</option><option value="amber">Amber</option><option value="teal">Teal</option>
+          <option value="pink">Pink</option><option value="orange">Orange</option><option value="indigo">Indigo</option><option value="gray">Gray</option>
+        </select>
+        <button class="btn primary" id="btnAddRowSetup">＋ Row</button>
+      </div>
+    </div>
+    <div class="setup-sec">
+      <div class="setup-sec-title">Post locations — drag to reorder &amp; assign to rows</div>
+      <div id="s-postList"></div>
+      <div class="qa">
+        <input class="fi" id="s-pname" placeholder="Location name e.g. Stage Left" style="font-size:12px;padding:5px 8px;flex:2">
+        <select class="fi" id="s-prowid" style="font-size:12px;padding:5px 8px;flex:1">
+          <option value="">No row</option>
+        </select>
+        <button class="btn primary" id="btnAddPostSetup">＋</button>
+      </div>
+    </div>
+    <div class="setup-sec">
+      <div class="setup-sec-title">Units — drag to reorder</div>
       <div id="s-unitList"></div>
       <div class="qa">
         <input class="fi" id="s-cs" placeholder="Callsign e.g. MED-1" style="font-size:12px;padding:5px 8px;flex:1">
@@ -302,30 +328,15 @@ select.fi option{background:var(--bg3)}
       </div>
     </div>
     <div class="setup-sec">
-      <div class="setup-sec-title">Post locations <span style="color:var(--text3);font-size:10px;font-weight:400;text-transform:none;letter-spacing:0">— drag to reorder</span></div>
-      <div id="s-postList"></div>
+      <div class="setup-sec-title">Call statuses &amp; colors</div>
+      <div id="s-statusList"></div>
       <div class="qa">
-        <input class="fi" id="s-pname" placeholder="Location e.g. Stage Left" style="font-size:12px;padding:5px 8px;flex:2">
-        <input class="fi" id="s-pzone" placeholder="Row/Zone" style="font-size:12px;padding:5px 8px;flex:1">
-        <select class="fi" id="s-pcolor" style="font-size:12px;padding:5px 8px;flex:1">
-          <option value="blue">Blue</option><option value="green">Green</option><option value="red">Red</option>
-          <option value="purple">Purple</option><option value="amber">Amber</option><option value="teal">Teal</option>
-          <option value="pink">Pink</option><option value="orange">Orange</option><option value="indigo">Indigo</option><option value="gray">Gray</option>
-        </select>
-        <button class="btn primary" id="btnAddPostSetup">＋</button>
+        <input class="fi" id="s-newstatus" placeholder="Status name" style="font-size:12px;padding:5px 8px;flex:1">
+        <button class="btn primary" id="btnAddStatus">＋ Add</button>
       </div>
     </div>
     <div class="setup-sec">
-      <div class="setup-sec-title">Zone / row colors</div>
-      <div id="s-zoneColors"></div>
-    </div>
-    <div class="setup-sec">
-      <div class="setup-sec-title">Call statuses &amp; colors</div>
-      <div style="font-size:11px;color:var(--text3);margin-bottom:8px">These appear in the call status section on each post card.</div>
-      <div id="s-statusList"></div>
-    </div>
-    <div class="setup-sec">
-      <div class="setup-sec-title">Transport resources <span style="color:var(--text3);font-size:10px;font-weight:400;text-transform:none;letter-spacing:0">— drag to reorder</span></div>
+      <div class="setup-sec-title">Transport resources — drag to reorder</div>
       <div id="s-resList"></div>
       <div class="qa">
         <input class="fi" id="s-rname" placeholder="Name e.g. Wheelchair 1" style="font-size:12px;padding:5px 8px;flex:2">
@@ -339,7 +350,7 @@ select.fi option{background:var(--bg3)}
 <!-- LOG VIEW -->
 <div class="view" id="view-log">
   <div style="padding:12px;flex:1;overflow-y:auto">
-    <div style="font-size:11px;color:var(--text2);margin-bottom:10px;font-weight:600">Activity log — newest first</div>
+    <div style="font-size:11px;color:var(--text2);margin-bottom:10px;font-weight:600">Full activity log — newest first</div>
     <div id="logList"></div>
   </div>
 </div>
@@ -350,7 +361,7 @@ select.fi option{background:var(--bg3)}
   <div class="panel-scroll" id="resPanel"></div>
 </div>
 
-</div><!-- /main -->
+</div>
 
 <!-- MODAL -->
 <div class="overlay" id="overlay">
@@ -366,132 +377,142 @@ var SB_URL='https://rtievdrzjxuqsfoiotqm.supabase.co';
 var SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ0aWV2ZHJ6anh1cXNmb2lvdHFtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgwNzc1MDIsImV4cCI6MjA5MzY1MzUwMn0.Vu8FgDUdCe-P5gErfbvrfTrB20nn2xGfk--2GwgQETk';
 var H={'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY};
 
-// Default call statuses
 var DEFAULT_STATUSES=[
   {k:'responding',l:'Responding',color:'#ffb020'},
-  {k:'onscene',l:'On Scene',color:'#ff5252'},
+  {k:'onscene',l:'On Scene',color:'#ff5050'},
   {k:'transporting',l:'Transporting',color:'#b48afa'},
   {k:'arrival',l:'Arrival',color:'#30d6c0'},
 ];
+var COLORS=['blue','green','red','purple','amber','teal','pink','orange','indigo','gray'];
 
 var S={
   event:{name:'',date:''},
-  units:[],posts:[],resources:[],log:[],
-  rows:[], // [{id,label,color,postIds:[]}]
-  zoneColors:{},
-  callStatuses:DEFAULT_STATUSES,
-  unitOrder:[],postOrder:[],resourceOrder:[]
+  units:[],posts:[],resources:[],rows:[],
+  callStatuses:JSON.parse(JSON.stringify(DEFAULT_STATUSES)),
+  log:[],miniLog:[],
+  unitOrder:[],postOrder:[],resourceOrder:[],rowOrder:[]
 };
 
-var saveTimer=null,lastSaved=0,dragSrcType=null,dragSrcId=null,dragSrcRow=null;
+// UNDO/REDO
+var undoStack=[],redoStack=[];
+function snapshot(){
+  var snap=JSON.stringify(S);
+  undoStack.push(snap);
+  if(undoStack.length>10)undoStack.shift();
+  redoStack=[];
+}
+function undo(){if(!undoStack.length)return;redoStack.push(JSON.stringify(S));S=JSON.parse(undoStack.pop());renderAll()}
+function redo(){if(!redoStack.length)return;undoStack.push(JSON.stringify(S));S=JSON.parse(redoStack.pop());renderAll()}
+
+var saveTimer=null,lastSaved=0;
 
 // ── SYNC ──────────────────────────────────────────────
 function setSS(s){document.getElementById('syncDot').className='sync-dot '+s}
 async function push(){
   setSS('busy');
-  try{
-    var r=await fetch(SB_URL+'/rest/v1/dispatch_state?id=eq.main',{method:'PATCH',headers:Object.assign({'Prefer':'return=minimal'},H),body:JSON.stringify({data:S,updated_at:new Date().toISOString()})});
-    if(r.ok){setSS('ok');lastSaved=Date.now();localStorage.setItem('mdd',JSON.stringify(S))}else setSS('err');
-  }catch(e){setSS('err');localStorage.setItem('mdd',JSON.stringify(S))}
+  try{var r=await fetch(SB_URL+'/rest/v1/dispatch_state?id=eq.main',{method:'PATCH',headers:Object.assign({'Prefer':'return=minimal'},H),body:JSON.stringify({data:S,updated_at:new Date().toISOString()})});if(r.ok){setSS('ok');lastSaved=Date.now();localStorage.setItem('mdd',JSON.stringify(S))}else setSS('err')}
+  catch(e){setSS('err');localStorage.setItem('mdd',JSON.stringify(S))}
 }
 async function pull(){
-  try{
-    var r=await fetch(SB_URL+'/rest/v1/dispatch_state?id=eq.main&select=data',{headers:H});
-    if(r.ok){var rows=await r.json();if(rows.length&&rows[0].data&&Object.keys(rows[0].data).length>0){S=Object.assign({},S,rows[0].data);setSS('ok');return}}
-  }catch(e){}
+  try{var r=await fetch(SB_URL+'/rest/v1/dispatch_state?id=eq.main&select=data',{headers:H});if(r.ok){var rows=await r.json();if(rows.length&&rows[0].data&&Object.keys(rows[0].data).length>0){S=Object.assign({},S,rows[0].data);setSS('ok');return}}}catch(e){}
   try{var b=localStorage.getItem('mdd');if(b){S=Object.assign({},S,JSON.parse(b));setSS('err')}}catch(e){}
 }
 function save(){localStorage.setItem('mdd',JSON.stringify(S));clearTimeout(saveTimer);saveTimer=setTimeout(push,1500)}
 async function poll(){
   if(Date.now()-lastSaved<1000)return;
-  try{
-    var r=await fetch(SB_URL+'/rest/v1/dispatch_state?id=eq.main&select=data,updated_at',{headers:H});
-    if(r.ok){var rows=await r.json();if(rows.length){var rt=new Date(rows[0].updated_at).getTime();if(rt>lastSaved+1000){S=Object.assign({},S,rows[0].data);lastSaved=rt;renderAll();setSS('ok')}}}
-  }catch(e){}
+  try{var r=await fetch(SB_URL+'/rest/v1/dispatch_state?id=eq.main&select=data,updated_at',{headers:H});if(r.ok){var rows=await r.json();if(rows.length){var rt=new Date(rows[0].updated_at).getTime();if(rt>lastSaved+1000){S=Object.assign({},S,rows[0].data);lastSaved=rt;renderAll();setSS('ok')}}}}catch(e){}
 }
 setInterval(poll,2000);
 setInterval(function(){try{fetch(SB_URL+'/rest/v1/dispatch_state?id=eq.main&select=id',{headers:H})}catch(e){}},86400000);
 
-// ── CLOCK ─────────────────────────────────────────────
+// ── CLOCK ──────────────────────────────────────────────
 function tick(){var n=new Date();document.getElementById('clock').textContent=n.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false})}
 setInterval(tick,1000);tick();
-setInterval(function(){if(S.units.some(function(u){return isInactive(u)}))renderInactiveTray();renderSidebar();},15000);
+setInterval(function(){if(S.units.some(isInactive))renderInactiveTray();renderSidebar();},15000);
 
-// ── HELPERS ───────────────────────────────────────────
+// ── HELPERS ────────────────────────────────────────────
 function gu(id){return S.units.find(function(u){return u.id===id})}
 function gp(id){return S.posts.find(function(p){return p.id===id})}
-function gr(id){return S.rows.find(function(r){return r.id===id})}
+function gr(id){return(S.rows||[]).find(function(r){return r.id===id})}
 function mkid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
-
+function nowt(){return new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:false})}
+function nowts(){return new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false})}
 function isInactive(u){return u.status==='break'||u.status==='training'||u.status==='outofservice'}
 
-var UNIT_STATUSES=[
-  {k:'available',l:'Available',dc:'dg',bc:'s-available'},
-  {k:'posted',l:'Posted',dc:'db',bc:'s-posted'},
-  {k:'break',l:'Break',dc:'da',bc:'s-break'},
-  {k:'training',l:'Training',dc:'db',bc:'s-training'},
-  {k:'outofservice',l:'Out of Service',dc:'d0',bc:'s-outofservice'},
-];
-function getUSM(k){return UNIT_STATUSES.find(function(s){return s.k===k})||UNIT_STATUSES[0]}
+var UNIT_SM={
+  available:{l:'Available',dc:'dg',bc:'s-available'},
+  posted:{l:'Posted',dc:'db',bc:'s-posted'},
+  break:{l:'Break',dc:'da',bc:'s-break'},
+  training:{l:'Training',dc:'db',bc:'s-training'},
+  outofservice:{l:'Out of Service',dc:'d0',bc:'s-outofservice'},
+};
+function getUSM(k){return UNIT_SM[k]||UNIT_SM.available}
 
-var COLORS=['blue','green','red','purple','amber','teal','pink','orange','indigo','gray'];
-
+// ── LOG ────────────────────────────────────────────────
 var LC={info:'var(--text2)',warn:'var(--amber)',call:'var(--red)',move:'var(--accent)'};
 function addLog(msg,type){
   type=type||'info';
-  var t=new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});
+  var t=nowts();
   S.log.unshift({time:t,msg:msg,type:type});if(S.log.length>500)S.log.pop();
+  S.miniLog=S.miniLog||[];S.miniLog.unshift({time:t,msg:msg,type:type});if(S.miniLog.length>40)S.miniLog.pop();
+  renderMiniLog();
+}
+function renderMiniLog(){
+  var el=document.getElementById('miniLog');if(!el)return;
+  el.innerHTML=(S.miniLog||[]).map(function(l){return'<div class="ml-item"><div class="ml-time">'+l.time+'</div><div class="ml-msg" style="color:'+(LC[l.type]||'var(--text2)')+'">'+l.msg+'</div></div>'}).join('');
 }
 
-// ── UNITS ─────────────────────────────────────────────
+// ── UNITS ──────────────────────────────────────────────
 function addUnit(){
   var cs=document.getElementById('s-cs').value.trim();if(!cs)return;
   var name=document.getElementById('s-uname').value.trim();
   var id=mkid();
-  S.units.push({id:id,callsign:cs,name:name,status:'available',postId:null,statusAt:Date.now(),postHistory:[],nextPostId:null,callStatus:null,callStatusAt:null,breakEnd:null,postingStatus:null});
+  S.units.push({id:id,callsign:cs,name:name,status:'available',postId:null,statusAt:Date.now(),postHistory:[],nextPostId:null,callStatus:null,callStatusAt:null,callTsStack:[],breakEnd:null,postingStatus:null,postedAt:null});
   S.unitOrder=S.unitOrder||[];S.unitOrder.push(id);
   document.getElementById('s-cs').value='';document.getElementById('s-uname').value='';
   addLog('Unit added: '+cs);save();renderAll();
 }
 function removeUnit(id){
+  snapshot();
   var u=gu(id);if(!u)return;
-  detachFromPost(id);
+  detachUnit(id);
   S.units=S.units.filter(function(u){return u.id!==id});
   S.unitOrder=(S.unitOrder||[]).filter(function(i){return i!==id});
   addLog('Unit removed: '+u.callsign,'warn');save();renderAll();
 }
 function resetUnit(id){
+  snapshot();
   var u=gu(id);if(!u)return;
-  detachFromPost(id);
-  u.status='available';u.statusAt=Date.now();u.callStatus=null;u.callStatusAt=null;
-  u.nextPostId=null;u.breakEnd=null;u.postingStatus=null;
-  addLog(u.callsign+' reset to available','warn');save();renderAll();
+  detachUnit(id);
+  u.status='available';u.statusAt=Date.now();u.callStatus=null;u.callStatusAt=null;u.callTsStack=[];u.nextPostId=null;u.breakEnd=null;u.postingStatus=null;u.postedAt=null;
+  addLog(u.callsign+' reset','warn');save();renderAll();
 }
-function detachFromPost(uid){
+function detachUnit(uid){
   var u=gu(uid);if(!u)return;
   if(u.postId){var p=gp(u.postId);if(p)p.unitIds=(p.unitIds||[]).filter(function(i){return i!==uid})}
   u.postId=null;u.postingStatus=null;
   if(u.status==='posted')u.status='available';
 }
 
-// ── POST ASSIGNMENT ────────────────────────────────────
+// ── ASSIGN ─────────────────────────────────────────────
 function assignNow(uid,postId){
+  snapshot();
   var u=gu(uid),p=gp(postId);if(!u||!p)return;
-  // Remove from old post
   if(u.postId&&u.postId!==postId){var op=gp(u.postId);if(op)op.unitIds=(op.unitIds||[]).filter(function(i){return i!==uid})}
   u.postId=postId;u.status='posted';u.statusAt=Date.now();
-  u.postingStatus='needschoice'; // prompt dispatcher to choose posting status
-  u.callStatus=null;u.callStatusAt=null;
+  u.postingStatus='planned'; // auto-select planned
+  u.callStatus=null;u.callStatusAt=null;u.callTsStack=[];u.postedAt=null;
   p.unitIds=p.unitIds||[];if(p.unitIds.indexOf(uid)===-1)p.unitIds.push(uid);
-  var t=new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:false});
-  u.postHistory=u.postHistory||[];u.postHistory.push({postId:postId,postName:p.name,zone:p.zone,time:t});
-  addLog(u.callsign+' → '+p.zone+' – '+p.name,'move');save();renderAll();
+  u.postHistory=u.postHistory||[];u.postHistory.push({postId:postId,postName:p.name,zone:p.zone||'',time:nowt()});
+  if(u.nextPostId===postId)u.nextPostId=null;
+  addLog(u.callsign+' → '+(p.zone?p.zone+' – ':'')+p.name,'move');save();renderAll();
 }
 function setNextPost(uid,postId){
+  snapshot();
   var u=gu(uid);if(!u)return;
   u.nextPostId=postId||null;
   var p=postId?gp(postId):null;
-  if(p)addLog(u.callsign+' next post: '+p.zone+' – '+p.name);
+  if(p)addLog(u.callsign+' planned → '+(p.zone?p.zone+' – ':'')+p.name);
   save();renderAll();
 }
 function confirmNextPost(uid){
@@ -499,642 +520,475 @@ function confirmNextPost(uid){
   assignNow(uid,u.nextPostId);
 }
 function setPostingStatus(uid,ps){
+  snapshot();
   var u=gu(uid);if(!u)return;
   if(ps==='clear'){
-    // Remove from post, back to available
     var np=u.nextPostId;
-    detachFromPost(uid);
-    u.status='available';u.statusAt=Date.now();
-    u.callStatus=null;u.callStatusAt=null;
-    u.nextPostId=np; // keep next post as reminder
+    detachUnit(uid);
+    u.status='available';u.statusAt=Date.now();u.callStatus=null;u.callStatusAt=null;u.callTsStack=[];u.nextPostId=np;u.postedAt=null;
     addLog(u.callsign+' cleared','move');
+  } else if(ps==='posted'){
+    u.postingStatus='posted';u.postedAt=nowt();
+    addLog(u.callsign+' posted at '+(u.postId?((gp(u.postId)||{}).name||''):''));
   } else {
     u.postingStatus=ps;
-    if(ps==='posted')addLog(u.callsign+' → Posted');
-    if(ps==='next')addLog(u.callsign+' → Next planned post set');
   }
   save();renderAll();
 }
 function setCallStatus(uid,cs){
+  snapshot();
   var u=gu(uid);if(!u)return;
   if(cs==='clearcall'){
-    // Clear call status only, keep at post with posting status options re-highlighted
-    u.callStatus=null;u.callStatusAt=null;
-    u.postingStatus='needschoice';
+    u.callStatus=null;u.callStatusAt=null;u.callTsStack=[];u.postingStatus='planned';
     addLog(u.callsign+' call cleared');
   } else {
-    u.callStatus=cs;u.callStatusAt=Date.now();
-    u.postingStatus='oncall'; // hide posting status options while on call
+    u.callStatus=cs;u.callStatusAt=Date.now();u.postingStatus='oncall';
     var st=S.callStatuses.find(function(s){return s.k===cs});
-    addLog(u.callsign+' → '+(st?st.l:cs),'call');
+    var label=st?st.l:cs;
+    u.callTsStack=u.callTsStack||[];
+    u.callTsStack.push({k:cs,l:label,time:nowt()});
+    addLog(u.callsign+' → '+label,'call');
   }
   save();renderAll();
 }
 
-// ── BREAK ─────────────────────────────────────────────
+// ── BREAK ──────────────────────────────────────────────
 function startBreak(uid,type,endMs){
+  snapshot();
   var u=gu(uid);if(!u)return;
-  detachFromPost(uid);
-  u.status=type;u.statusAt=Date.now();u.breakEnd=endMs;u.callStatus=null;
+  detachUnit(uid);
+  u.status=type;u.statusAt=Date.now();u.breakEnd=endMs;u.callStatus=null;u.callTsStack=[];
   addLog(u.callsign+' → '+type,'warn');save();renderAll();
 }
-function parseTimeToMs(t){
-  var p=t.split(':');var h=parseInt(p[0]);var m=parseInt(p[1])||0;
-  var now=new Date();var end=new Date(now.getFullYear(),now.getMonth(),now.getDate(),h,m,0,0);
-  if(end<=now)end.setDate(end.getDate()+1);
-  return end.getTime();
-}
-function getNextHalf(){
-  var n=new Date();var m=n.getMinutes();var add=m<30?30-m:60-m;n.setMinutes(n.getMinutes()+add,0,0);
-  return String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0');
-}
+function parseTimeToMs(t){var p=t.split(':');var h=parseInt(p[0]);var m=parseInt(p[1])||0;var now=new Date();var end=new Date(now.getFullYear(),now.getMonth(),now.getDate(),h,m,0,0);if(end<=now)end.setDate(end.getDate()+1);return end.getTime()}
+function getNextHalf(){var n=new Date();var m=n.getMinutes();var add=m<30?30-m:60-m;n.setMinutes(n.getMinutes()+add,0,0);return String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0')}
 
-// ── ROWS ──────────────────────────────────────────────
+// ── ROWS ───────────────────────────────────────────────
 function addRow(label,color){
-  var id=mkid();
-  S.rows=S.rows||[];
+  snapshot();
+  var id=mkid();S.rows=S.rows||[];
   S.rows.push({id:id,label:label||'New Row',color:color||'blue',postIds:[]});
-  save();renderBoard();
+  S.rowOrder=S.rowOrder||[];S.rowOrder.push(id);
+  save();renderAll();
 }
 function removeRow(id){
+  snapshot();
   var row=gr(id);if(!row)return;
-  // Posts in this row become unassigned
-  (row.postIds||[]).forEach(function(pid){
-    var p=gp(pid);if(p)p.rowId=null;
-  });
+  (row.postIds||[]).forEach(function(pid){var p=gp(pid);if(p)p.rowId=null});
   S.rows=S.rows.filter(function(r){return r.id!==id});
-  save();renderBoard();
+  S.rowOrder=(S.rowOrder||[]).filter(function(i){return i!==id});
+  save();renderAll();
 }
 
-// ── POSTS ─────────────────────────────────────────────
+// ── POSTS ──────────────────────────────────────────────
 function addPost(){
+  snapshot();
   var name=document.getElementById('s-pname').value.trim();if(!name)return;
-  var zone=document.getElementById('s-pzone').value.trim()||'General';
-  var color=document.getElementById('s-pcolor').value||'blue';
-  if(!S.zoneColors)S.zoneColors={};
-  if(!S.zoneColors[zone])S.zoneColors[zone]=color;
+  var rowId=document.getElementById('s-prowid').value||null;
   var id=mkid();
-  S.posts.push({id:id,name:name,zone:zone,unitIds:[],size:'md',rowId:null});
+  S.posts.push({id:id,name:name,unitIds:[],rowId:rowId});
   S.postOrder=S.postOrder||[];S.postOrder.push(id);
-  // Auto-add to matching row or create one
-  var matchRow=S.rows.find(function(r){return r.label===zone});
-  if(matchRow){matchRow.postIds=matchRow.postIds||[];matchRow.postIds.push(id);}
-  document.getElementById('s-pname').value='';document.getElementById('s-pzone').value='';
-  addLog('Post added: '+zone+' – '+name);save();renderAll();
+  if(rowId){var row=gr(rowId);if(row){row.postIds=row.postIds||[];row.postIds.push(id)}}
+  document.getElementById('s-pname').value='';
+  addLog('Post added: '+name);save();renderAll();
 }
 function removePost(id){
+  snapshot();
   var p=gp(id);if(!p)return;
-  (p.unitIds||[]).forEach(function(uid){var u=gu(uid);if(u){u.postId=null;if(u.status==='posted')u.status='available'}});
-  S.rows.forEach(function(r){r.postIds=(r.postIds||[]).filter(function(i){return i!==id})});
+  (p.unitIds||[]).forEach(function(uid){var u=gu(uid);if(u){u.postId=null;u.postingStatus=null;if(u.status==='posted')u.status='available'}});
+  (S.rows||[]).forEach(function(r){r.postIds=(r.postIds||[]).filter(function(i){return i!==id})});
   S.posts=S.posts.filter(function(p){return p.id!==id});
   S.postOrder=(S.postOrder||[]).filter(function(i){return i!==id});
   addLog('Post removed: '+p.name,'warn');save();renderAll();
 }
-function setPostSize(pid,sz){var p=gp(pid);if(p){p.size=sz;save();renderBoard()}}
 
-// ── RESOURCES ─────────────────────────────────────────
+// ── RESOURCES ──────────────────────────────────────────
 function addResource(){
   var name=document.getElementById('s-rname').value.trim();if(!name)return;
   var loc=document.getElementById('s-rloc').value.trim();
-  var id=mkid();
-  S.resources.push({id:id,name:name,home:loc,status:'home',currentLoc:loc});
+  var id=mkid();S.resources.push({id:id,name:name,home:loc,status:'home',currentLoc:loc});
   S.resourceOrder=S.resourceOrder||[];S.resourceOrder.push(id);
   document.getElementById('s-rname').value='';document.getElementById('s-rloc').value='';
   addLog('Resource added: '+name);save();renderAll();
 }
-function removeResource(id){
-  S.resources=S.resources.filter(function(r){return r.id!==id});
-  S.resourceOrder=(S.resourceOrder||[]).filter(function(i){return i!==id});
-  save();renderAll();
+function removeResource(id){S.resources=S.resources.filter(function(r){return r.id!==id});S.resourceOrder=(S.resourceOrder||[]).filter(function(i){return i!==id});save();renderAll()}
+
+// ── BIG RESET ──────────────────────────────────────────
+function bigReset(){
+  snapshot();
+  S.units.forEach(function(u){u.status='available';u.postId=null;u.postingStatus=null;u.callStatus=null;u.callStatusAt=null;u.callTsStack=[];u.nextPostId=null;u.breakEnd=null;u.postedAt=null;u.statusAt=Date.now()});
+  S.posts.forEach(function(p){p.unitIds=[]});
+  S.resources.forEach(function(r){r.status='home';r.currentLoc=r.home});
+  addLog('Board reset','warn');save();renderAll();
 }
 
-// ── RENDER ALL ────────────────────────────────────────
+// ── RENDER ALL ─────────────────────────────────────────
 function renderAll(){
-  renderSidebar();renderBoard();renderResources();
+  renderSidebar();renderBoard();renderResources();renderMiniLog();
   document.getElementById('uCount').textContent=S.units.length;
   if(S.event.name)document.getElementById('eventChip').textContent='⚡ '+S.event.name;
   if(document.getElementById('view-setup').classList.contains('on'))renderSetup();
   if(document.getElementById('view-log').classList.contains('on'))renderLog();
 }
 
-// ── SIDEBAR ───────────────────────────────────────────
+// ── SIDEBAR ────────────────────────────────────────────
 function renderSidebar(){
   var el=document.getElementById('unitSidebar');
-  var ordered=orderedUnits();
-  if(!ordered.length){el.innerHTML='<div style="font-size:12px;color:var(--text3);padding:14px;text-align:center">Add units in Setup</div>';return}
-  el.innerHTML=ordered.map(function(u){
+  var units=orderedUnits();
+  if(!units.length){el.innerHTML='<div style="font-size:12px;color:var(--text3);padding:14px;text-align:center">Add units in Setup</div>';return}
+  el.innerHTML=units.map(function(u){
     var sm=getUSM(u.status);
     var post=u.postId?gp(u.postId):null;
     var lastPost=u.postHistory&&u.postHistory.length?u.postHistory[u.postHistory.length-1]:null;
     var locLine='';
-    if(post){locLine='<div class="uc-loc">📍 '+post.zone+' – '+post.name+'</div>'}
-    else if(lastPost&&u.status!=='available'){locLine='<div class="uc-loc" style="color:var(--text3)">Last: '+lastPost.zone+' – '+lastPost.postName+'</div>'}
+    if(post){locLine='<div class="uc-loc">📍 '+(post.zone?post.zone+' – ':'')+post.name+'</div>'}
+    else if(lastPost){locLine='<div class="uc-loc" style="color:var(--text3)">Last: '+(lastPost.zone?lastPost.zone+' – ':'')+lastPost.postName+'</div>'}
+
+    // Call status in sidebar
+    var callLine='';
+    if(u.callStatus){
+      var st=S.callStatuses.find(function(s){return s.k===u.callStatus});
+      if(st)callLine='<div class="uc-call-status" style="background:'+hexRgba(st.color,.15)+';color:'+st.color+'">'+st.l+'</div>';
+    }
+
     var tsLine='';
-    if(u.statusAt){var mins=Math.floor((Date.now()-u.statusAt)/60000);tsLine='<div class="uc-ts">'+sm.l+' · '+mins+'m</div>'}
+    if(u.statusAt){var mins=Math.floor((Date.now()-u.statusAt)/60000);tsLine='<div class="uc-ts">'+sm.l+(u.postedAt?' since '+u.postedAt:'')+(mins?' · '+mins+'m':'')+'</div>'}
+
     // Break timer
     var breakLine='';
     if((u.status==='break'||u.status==='training')&&u.breakEnd){
       var diff=u.breakEnd-Date.now();var abs=Math.abs(diff);
       var bm=Math.floor(abs/60000);var bs=Math.floor((abs%60000)/1000);
-      var bstr=(diff>0?'':'-')+bm+'m'+String(bs).padStart(2,'0')+'s';
-      var cls=diff>300000?'ok':diff>0?'warn':'over';
-      var flash=diff<=0?' flashing':'';
-      breakLine='<div class="break-timer '+cls+flash+'">'+bstr+'</div>';
+      var cls=diff>300000?'ok':diff>0?'warn':'over';var flash=diff<=0?' flashing':'';
+      breakLine='<div class="break-timer '+cls+flash+'">'+(diff>0?'':'-')+bm+'m'+String(bs).padStart(2,'0')+'s</div>';
     }
-    // Next post reminder
+
+    // Next post
     var nextLine='';
-    if(u.nextPostId){
-      var np=gp(u.nextPostId);
-      if(np){
-        var canConfirm=u.status==='available'||(!u.postId);
-        nextLine='<div class="uc-next"><div class="uc-next-lbl">Next post</div><div class="uc-next-val">'+np.zone+' – '+np.name+'</div>'+(canConfirm?'<button class="btn sm primary" data-action="confirmnext" data-uid="'+u.id+'">→ Confirm &amp; post there</button>':'<span style="font-size:10px;color:var(--text3)">Will confirm when clear</span>')+'</div>';
-      }
-    }
-    return '<div class="uc"><div class="uc-top"><span class="dot '+sm.dc+'" style="margin-right:2px"></span><span class="uc-cs">'+u.callsign+'</span><span class="uc-badge '+sm.bc+'">'+sm.l+'</span></div>'+locLine+tsLine+breakLine+nextLine+'<div class="uc-actions"><button class="btn xs" data-action="openbreak" data-uid="'+u.id+'">Break/Train</button><button class="btn xs warn" data-action="resetunit" data-uid="'+u.id+'">Reset</button><button class="xbtn" data-action="removeunit" data-uid="'+u.id+'">🗑</button></div></div>';
+    if(u.nextPostId){var np=gp(u.nextPostId);if(np){var canConfirm=u.status==='available'||(!u.postId);nextLine='<div class="uc-next"><div class="uc-next-lbl">Planned next post</div><div class="uc-next-val">'+(np.zone?np.zone+' – ':'')+np.name+'</div>'+(canConfirm?'<button class="btn xs primary" data-action="confirmnext" data-uid="'+u.id+'">→ Confirm</button>':'<span style="font-size:10px;color:var(--text3)">Pending</span>')+'</div>';}}
+
+    var isAvail=u.status==='available'&&!u.postId;
+    return '<div class="uc'+(isAvail?' available-highlight':'')+'"><div class="uc-top"><span class="dot '+sm.dc+'" style="margin-right:2px"></span><span class="uc-cs">'+u.callsign+'</span><span class="uc-badge '+sm.bc+'">'+sm.l+'</span></div>'+locLine+callLine+tsLine+breakLine+nextLine+'<div class="uc-actions"><button class="btn xs" data-action="openbreak" data-uid="'+u.id+'">Break/Train</button><button class="btn xs warn-btn" data-action="resetunit" data-uid="'+u.id+'">Reset</button><button class="xbtn" data-action="removeunit" data-uid="'+u.id+'">🗑</button></div></div>';
   }).join('');
 }
 
-function orderedUnits(){
-  var order=S.unitOrder||[];
-  var sorted=S.units.slice().sort(function(a,b){var ai=order.indexOf(a.id),bi=order.indexOf(b.id);return(ai===-1?9999:ai)-(bi===-1?9999:bi)});
-  return sorted;
-}
-
-// ── INACTIVE TRAY ─────────────────────────────────────
+// ── INACTIVE TRAY ──────────────────────────────────────
 function renderInactiveTray(){
-  var inactive=S.units.filter(function(u){return isInactive(u)});
+  var inactive=S.units.filter(isInactive);
   var tray=document.getElementById('inactiveTray');
   if(!inactive.length){tray.style.display='none';return}
   tray.style.display='block';
   document.getElementById('inactiveChips').innerHTML=inactive.map(function(u){
-    var sm=getUSM(u.status);
-    var breakLine='';
-    if(u.breakEnd){
-      var diff=u.breakEnd-Date.now();var abs=Math.abs(diff);
-      var bm=Math.floor(abs/60000);var bs=Math.floor((abs%60000)/1000);
-      var cls=diff>300000?'ok':diff>0?'warn':'over';var flash=diff<=0?' flashing':'';
-      breakLine='<div class="break-timer '+cls+flash+'" style="font-size:11px;padding:3px 7px;margin:3px 0">'+(diff>0?'':'-')+bm+'m'+String(bs).padStart(2,'0')+'s</div>';
-    }
+    var sm=getUSM(u.status);var breakLine='';
+    if(u.breakEnd){var diff=u.breakEnd-Date.now();var abs=Math.abs(diff);var bm=Math.floor(abs/60000);var bs=Math.floor((abs%60000)/1000);var cls=diff>300000?'ok':diff>0?'warn':'over';var flash=diff<=0?' flashing':'';breakLine='<div class="break-timer '+cls+flash+'" style="font-size:11px;padding:2px 6px;margin:2px 0">'+(diff>0?'':'-')+bm+'m'+String(bs).padStart(2,'0')+'s</div>'}
     return '<div class="ichip"><div class="ichip-top"><span class="dot '+sm.dc+'"></span><span class="ichip-cs">'+u.callsign+'</span><span class="uc-badge '+sm.bc+'" style="font-size:9px">'+sm.l+'</span><button class="btn xs" data-action="resetunit" data-uid="'+u.id+'" style="margin-left:auto">Clear</button></div>'+breakLine+'</div>';
   }).join('');
 }
 
-// ── BOARD ─────────────────────────────────────────────
+// ── BOARD ──────────────────────────────────────────────
 function renderBoard(){
   renderInactiveTray();
-  var rows=S.rows||[];
-  // Unassigned posts
-  var allAssigned=[];rows.forEach(function(r){(r.postIds||[]).forEach(function(id){allAssigned.push(id)})});
-  var unassigned=S.posts.filter(function(p){return allAssigned.indexOf(p.id)===-1});
-
+  var rows=orderedRows();
+  var assignedPostIds=[];rows.forEach(function(r){(r.postIds||[]).forEach(function(id){assignedPostIds.push(id)})});
+  var unassigned=S.posts.filter(function(p){return assignedPostIds.indexOf(p.id)===-1});
   var html='';
-
-  // Render rows
   rows.forEach(function(row){
-    var color=row.color||'blue';
-    var postIds=row.postIds||[];
-    var posts=postIds.map(function(id){return gp(id)}).filter(Boolean);
-    html+='<div class="zone-row" data-row-id="'+row.id+'">';
-    html+='<div class="zone-row-hdr">';
-    html+='<span class="zone-row-label zh-'+color+'">'+row.label+'</span>';
-    html+='<button class="zone-row-add" data-action="addposttorow" data-row-id="'+row.id+'">＋ post</button>';
-    html+='<button class="ibtn" data-action="editrow" data-row-id="'+row.id+'" style="font-size:12px" title="Edit row">✎</button>';
-    html+='<button class="ibtn" data-action="removerow" data-row-id="'+row.id+'" title="Remove row">🗑</button>';
-    html+='</div>';
-    html+='<div class="zone-row-cards" data-row-id="'+row.id+'">';
-    posts.forEach(function(p){html+=renderPostCard(p,row)});
-    html+='</div></div>';
+    var posts=(row.postIds||[]).map(function(id){return gp(id)}).filter(Boolean);
+    html+=renderRow(row,posts);
   });
-
-  // Unassigned row
   if(unassigned.length){
-    html+='<div class="zone-row">';
-    html+='<div class="zone-row-hdr"><span class="zone-row-label zh-gray">Unassigned posts</span></div>';
-    html+='<div class="zone-row-cards" data-row-id="__unassigned">';
-    unassigned.forEach(function(p){html+=renderPostCard(p,null)});
-    html+='</div></div>';
+    html+='<div class="zone-row"><div class="row-hdr"><span class="row-label zh-gray">Unassigned</span></div><div class="board-grid">'+unassigned.map(function(p){return renderPostCard(p,null)}).join('')+'</div></div>';
   }
-
-  if(!rows.length&&!unassigned.length){
-    html='<div style="font-size:13px;color:var(--text3);padding:24px;text-align:center">Add a row to get started, then add posts in Setup.</div>';
-  }
-
+  if(!rows.length&&!unassigned.length){html='<div style="font-size:13px;color:var(--text3);padding:24px;text-align:center">Add rows in Setup, then add posts to them.</div>'}
   document.getElementById('boardRows').innerHTML=html;
-  attachDragListeners();
+}
+
+function renderRow(row,posts){
+  var color=row.color||'blue';
+  var cards=posts.map(function(p){return renderPostCard(p,row)}).join('');
+  return '<div class="zone-row"><div class="row-hdr"><span class="row-label zh-'+color+'">'+row.label+'</span></div><div class="board-grid">'+cards+'</div></div>';
 }
 
 function renderPostCard(p,row){
   if(!p)return'';
-  var color=row?row.color:(S.zoneColors&&S.zoneColors[p.zone]?S.zoneColors[p.zone]:'gray');
-  var sz=p.size||'md';
+  var color=row?row.color:'gray';
   var units=(p.unitIds||[]).map(function(id){return gu(id)}).filter(Boolean);
 
-  var unitsHtml=units.map(function(u){
-    return renderUnitInPost(u,p);
+  // Planned-here reminders (units whose nextPostId === this post, but not currently here)
+  var plannedUnits=S.units.filter(function(u){return u.nextPostId===p.id&&u.postId!==p.id});
+  var plannedHtml=plannedUnits.map(function(u){
+    var isAvail=u.status==='available';
+    return '<div class="pc-planned-reminder'+(isAvail?' highlight':'')+'"><span>🔜 '+u.callsign+' planned here</span>'+(isAvail?'<button class="next-tag-confirm" data-action="confirmnext" data-uid="'+u.id+'">Confirm</button>':'')+'</div>';
   }).join('');
 
+  var unitsHtml=units.map(function(u){return renderUnitInPost(u,p)}).join('');
   var empty=units.length?'':'<div class="pc-empty">No units assigned</div>';
 
-  // Assign dropdowns
+  // Assign dropdowns - exclude units already here and inactive units
   var avail=S.units.filter(function(u){return!isInactive(u)&&!units.find(function(x){return x.id===u.id})});
   var assignHtml='';
   if(avail.length){
-    assignHtml='<div class="assign-section">'
-      +'<div class="assign-section-lbl">Add unit</div>'
-      +'<div class="assign-btns">'
-      +'<select class="asel" data-action="assignnow" data-post-id="'+p.id+'"><option value="">Post here now…</option>'+avail.map(function(u){return'<option value="'+u.id+'">'+u.callsign+(u.name?' – '+u.name:'')+'</option>'}).join('')+'</select>'
-      +'<select class="asel" data-action="assignnext" data-post-id="'+p.id+'"><option value="">Set as next post…</option>'+avail.map(function(u){return'<option value="'+u.id+'">'+u.callsign+(u.name?' – '+u.name:'')+'</option>'}).join('')+'</select>'
-      +'</div></div>';
+    assignHtml='<div class="assign-section"><div class="assign-lbl">Add unit</div><div class="assign-btns"><select class="asel" data-action="assignnow" data-post-id="'+p.id+'"><option value="">Post here now…</option>'+avail.map(function(u){return'<option value="'+u.id+'">'+u.callsign+(u.name?' – '+u.name:'')+'</option>'}).join('')+'</select><select class="asel" data-action="assignnext" data-post-id="'+p.id+'"><option value="">Set as planned post…</option>'+avail.map(function(u){return'<option value="'+u.id+'">'+u.callsign+(u.name?' – '+u.name:'')+'</option>'}).join('')+'</select></div></div>';
   }
 
-  var szCtrl='<div class="sz-ctrl"><button class="sz-btn'+(sz==='sm'?' on':'')+'" data-action="setsize" data-pid="'+p.id+'" data-sz="sm">S</button><button class="sz-btn'+(sz==='md'?' on':'')+'" data-action="setsize" data-pid="'+p.id+'" data-sz="md">M</button><button class="sz-btn'+(sz==='lg'?' on':'')+'" data-action="setsize" data-pid="'+p.id+'" data-sz="lg">L</button></div>';
+  var isFree=units.some(function(u){return u.postingStatus==='posted'&&!u.callStatus});
 
-  return '<div class="pc pc-'+color+' sz-'+sz+'" id="pc-'+p.id+'" draggable="true" data-post-id="'+p.id+'" data-row-id="'+(row?row.id:'__unassigned')+'">'
-    +'<div class="pc-hdr">'
-    +'<span class="pc-title">'+p.zone+' — '+p.name+'</span>'
-    +szCtrl
-    +'<button class="ibtn" data-action="removepost" data-pid="'+p.id+'" title="Remove">🗑</button>'
-    +'</div>'
-    +'<div class="pc-body">'+unitsHtml+empty+'</div>'
-    +assignHtml
-    +'</div>';
+  return '<div class="pc'+(isFree?' posted-free':'')+' pc-bdr-'+color+'" id="pc-'+p.id+'"><div class="pc-hdr pc-hdr-'+color+'"><span class="pc-title">'+(row?row.label+' — ':'')+p.name+'</span></div><div class="pc-body">'+plannedHtml+unitsHtml+empty+'</div>'+assignHtml+'</div>';
 }
 
 function renderUnitInPost(u,p){
   var sm=getUSM(u.status);
-  // "Current" line
-  var callSt=u.callStatus?S.callStatuses.find(function(s){return s.k===u.callStatus}):null;
-  var currentLabel=callSt?callSt.l:(u.postingStatus==='posted'?'Posted':u.postingStatus==='next'?'Next planned':u.postingStatus==='oncall'?'On call':u.postingStatus==='needschoice'?'Choose status below':'–');
-  var currentHtml='<div class="pu-current">Current: <span>'+currentLabel+'</span></div>';
-
-  // POSTING STATUS ROW
   var ps=u.postingStatus;
-  var postingHtml='';
+
+  // Current status line
+  var callSt=u.callStatus?S.callStatuses.find(function(s){return s.k===u.callStatus}):null;
+  var curLabel=callSt?callSt.l:(ps==='posted'?'Posted'+(u.postedAt?' since '+u.postedAt:''):ps==='planned'?'Planned':ps==='oncall'?'On call':ps==='needschoice'?'Choose below':'–');
+  var currentHtml='<div class="pu-current">Current: <b>'+curLabel+'</b></div>';
+
+  // POST STATUS ROW (hide when on call)
+  var postStatusHtml='';
   if(ps!=='oncall'){
-    var needsChoice=ps==='needschoice'||!ps;
-    var psBtns=[
-      {k:'clear',l:'Clear',cls:'on-clear'},
-      {k:'next',l:'Next Planned Post',cls:'on-next'},
-      {k:'posted',l:'Posted',cls:'on-posted'},
-    ].map(function(b){
+    var needsG=!ps||ps==='needschoice';
+    var btns=[{k:'clear',l:'Clear'},{k:'planned',l:'Planned'},{k:'posted',l:'Posted'}].map(function(b){
       var isOn=ps===b.k;
-      var needsGlow=needsChoice?' needs-choice':'';
-      return '<button class="ps-btn'+(isOn?' '+b.cls:needsGlow)+'" data-action="setpostingstatus" data-uid="'+u.id+'" data-ps="'+b.k+'">'+b.l+'</button>';
+      var cls='ps-btn'+(isOn?' on-'+b.k:'')+(needsG&&!isOn?' needs-glow':'');
+      return '<button class="'+cls+'" data-action="setps" data-uid="'+u.id+'" data-ps="'+b.k+'">'+b.l+'</button>';
     }).join('');
-    postingHtml='<div class="post-status-row"><span class="post-status-lbl">Post</span>'+psBtns+'</div>';
+    postStatusHtml='<div class="post-status-row"><span class="ps-lbl">Post</span>'+btns+'</div>';
   }
 
-  // Next post reminder tag
+  // Next post tag on this card
   var nextTag='';
-  if(u.nextPostId&&ps!=='oncall'){
+  if(u.nextPostId&&u.nextPostId!==p.id){
     var np=gp(u.nextPostId);
-    if(np&&np.id!==p.id){
-      var canConfirm=!u.callStatus;
-      nextTag='<div class="next-planned-tag"><span>→ '+np.zone+' – '+np.name+'</span>'+(canConfirm?'<button class="next-confirm-btn" data-action="confirmnext" data-uid="'+u.id+'">Confirm</button>':'')+'</div>';
+    if(np){
+      var canConfirm=!u.callStatus&&(u.status==='available'||true);
+      nextTag='<div class="next-tag">→ Planned: '+(np.zone?np.zone+' – ':'')+np.name+(canConfirm?'<br><button class="next-tag-confirm" data-action="confirmnext" data-uid="'+u.id+'">Confirm &amp; move</button>':'')+'</div>';
     }
   }
 
-  // CALL STATUS
+  // CALL STATUS (only when posted)
   var callHtml='';
   if(ps==='posted'||ps==='oncall'){
     var callBtns=S.callStatuses.map(function(s){
       var isActive=u.callStatus===s.k;
-      var style=isActive?'background:'+hexToRgba(s.color,.2)+';color:'+s.color+';border-color:'+s.color+';':'' ;
-      return '<button class="cb'+(isActive?' active':'')+'" style="'+style+'" data-action="setcallstatus" data-uid="'+u.id+'" data-cs="'+s.k+'">'+s.l+'</button>';
+      var style=isActive?'background:'+hexRgba(s.color,.18)+';color:'+s.color+';border-color:'+s.color+';':'';
+      return '<button class="cb'+(isActive?' active':'')+'" style="'+style+'" data-action="setcs" data-uid="'+u.id+'" data-cs="'+s.k+'">'+s.l+'</button>';
     }).join('');
-    var clearCallBtn=u.callStatus?'<button class="cb" data-action="setcallstatus" data-uid="'+u.id+'" data-cs="clearcall" style="border-color:var(--green);color:var(--green)">✓ Clear call</button>':'';
-    callHtml='<div class="call-status-section"><div class="call-status-lbl">Call status</div><div class="call-btns">'+callBtns+clearCallBtn+'</div>';
-    if(u.callStatus&&u.callStatusAt){var cm=Math.floor((Date.now()-u.callStatusAt)/60000);callHtml+='<div style="font-size:10px;color:var(--text3);margin-top:3px;font-family:var(--mono)">'+currentLabel+' · '+cm+'m</div>'}
-    callHtml+='</div>';
-  }
+    var clearBtn=u.callStatus?'<button class="cb" data-action="setcs" data-uid="'+u.id+'" data-cs="clearcall" style="border-color:var(--green);color:var(--green);margin-left:2px">✓ Clear call</button>':'';
 
-  return '<div class="pu" style="background:rgba(0,0,0,.25)">'
-    +'<div class="pu-top" style="display:flex;align-items:center;gap:5px;margin-bottom:5px">'
-    +'<span class="dot '+sm.dc+'"></span>'
-    +'<span style="font-family:var(--mono);font-size:13px;font-weight:700;flex:1">'+u.callsign+'</span>'
-    +'<button class="xbtn" data-action="unassign" data-uid="'+u.id+'" title="Remove from post">✕</button>'
-    +'</div>'
-    +currentHtml
-    +postingHtml
-    +nextTag
-    +callHtml
-    +'</div>';
-}
-
-function hexToRgba(hex,alpha){
-  var r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
-  return'rgba('+r+','+g+','+b+','+alpha+')';
-}
-
-// ── DRAG & DROP (board) ───────────────────────────────
-function attachDragListeners(){
-  document.querySelectorAll('.pc[draggable]').forEach(function(card){
-    card.addEventListener('dragstart',function(e){
-      dragSrcType='post';dragSrcId=card.dataset.postId;dragSrcRow=card.dataset.rowId;
-      e.dataTransfer.effectAllowed='move';
-      setTimeout(function(){card.classList.add('dragging')},0);
-    });
-    card.addEventListener('dragend',function(){
-      card.classList.remove('dragging');
-      document.querySelectorAll('.pc,.zone-row-cards').forEach(function(el){el.classList.remove('drag-over','drag-over-card')});
-    });
-    card.addEventListener('dragover',function(e){e.preventDefault();card.classList.add('drag-over-card')});
-    card.addEventListener('dragleave',function(){card.classList.remove('drag-over-card')});
-    card.addEventListener('drop',function(e){
-      e.preventDefault();e.stopPropagation();
-      card.classList.remove('drag-over-card');
-      if(!dragSrcId||dragSrcId===card.dataset.postId)return;
-      var targetRowId=card.dataset.rowId;
-      var targetPostId=card.dataset.postId;
-      movePostToRow(dragSrcId,dragSrcRow,targetRowId,targetPostId);
-    });
-  });
-  document.querySelectorAll('.zone-row-cards').forEach(function(zone){
-    zone.addEventListener('dragover',function(e){e.preventDefault();zone.classList.add('drag-over')});
-    zone.addEventListener('dragleave',function(){zone.classList.remove('drag-over')});
-    zone.addEventListener('drop',function(e){
-      e.preventDefault();zone.classList.remove('drag-over');
-      if(!dragSrcId)return;
-      var targetRowId=zone.dataset.rowId;
-      movePostToRow(dragSrcId,dragSrcRow,targetRowId,null);
-    });
-  });
-}
-
-function movePostToRow(postId,fromRowId,toRowId,beforePostId){
-  // Remove from old row
-  S.rows.forEach(function(r){r.postIds=(r.postIds||[]).filter(function(i){return i!==postId})});
-  // Add to new row
-  if(toRowId&&toRowId!=='__unassigned'){
-    var row=gr(toRowId);
-    if(row){
-      row.postIds=row.postIds||[];
-      if(beforePostId){
-        var idx=row.postIds.indexOf(beforePostId);
-        if(idx!==-1)row.postIds.splice(idx,0,postId);
-        else row.postIds.push(postId);
-      } else {
-        row.postIds.push(postId);
-      }
+    // Timestamp stack
+    var tsStack='';
+    if(u.callTsStack&&u.callTsStack.length){
+      tsStack='<div class="call-ts-stack">'+u.callTsStack.map(function(ts,i){var isLast=i===u.callTsStack.length-1;return'<span class="'+(isLast?'latest':'')+'">'+ts.time+' '+ts.l+'</span>'}).join('')+'</div>';
     }
+
+    callHtml='<div class="call-section"><div class="call-lbl">Call status</div><div class="call-btns">'+callBtns+clearBtn+'</div>'+tsStack+'</div>';
   }
-  save();renderBoard();
+
+  return '<div class="pu"><div class="pu-top"><span class="dot '+sm.dc+'"></span><span class="pu-cs">'+u.callsign+'</span><span class="uc-badge '+sm.bc+'" style="font-size:9px">'+sm.l+'</span><button class="xbtn" data-action="unassign" data-uid="'+u.id+'">✕</button></div>'+currentHtml+postStatusHtml+nextTag+callHtml+'</div>';
 }
 
-// ── SETUP RENDER ──────────────────────────────────────
+function hexRgba(hex,a){try{var r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);return'rgba('+r+','+g+','+b+','+a+')'}catch(e){return'rgba(100,100,200,'+a+')'}}
+
+// ── SETUP ──────────────────────────────────────────────
 function renderSetup(){
-  // Units
-  var ul=document.getElementById('s-unitList');
-  var uordered=orderedUnits();
-  if(ul)ul.innerHTML=uordered.map(function(u){var sm=getUSM(u.status);return'<div class="si draggable" data-drag-type="unit" data-id="'+u.id+'"><span class="si-handle">⠿</span><span class="si-name">'+u.callsign+(u.name?' — '+u.name:'')+'</span><span class="si-meta">'+sm.l+'</span><button class="ibtn" data-action="removeunit" data-uid="'+u.id+'">🗑</button></div>'}).join('')||'<div style="font-size:11px;color:var(--text3);padding:4px">None yet</div>';
+  // Rows
+  var rl=document.getElementById('s-rowList');
+  var orows=orderedRows();
+  if(rl)rl.innerHTML=orows.map(function(r){return'<div class="si" draggable="true" data-drag-type="row" data-id="'+r.id+'"><span class="si-handle">⠿</span><span class="dot" style="background:var(--'+colorVar(r.color)+')"></span><span class="si-name">'+r.label+'</span><span class="si-meta">'+r.color+'</span><button class="ibtn" data-action="editrow" data-row-id="'+r.id+'">✎</button><button class="ibtn" data-action="removerow" data-row-id="'+r.id+'">🗑</button></div>'}).join('')||'<div style="font-size:11px;color:var(--text3);padding:4px">No rows yet</div>';
+
+  // Post row selector
+  var sel=document.getElementById('s-prowid');
+  if(sel){sel.innerHTML='<option value="">No row</option>'+orows.map(function(r){return'<option value="'+r.id+'">'+r.label+'</option>'}).join('')}
 
   // Posts
   var pl=document.getElementById('s-postList');
-  var pordered=orderedPosts();
-  if(pl)pl.innerHTML=pordered.map(function(p){var c=S.zoneColors&&S.zoneColors[p.zone]?S.zoneColors[p.zone]:'gray';return'<div class="si draggable" data-drag-type="post" data-id="'+p.id+'"><span class="si-handle">⠿</span><span class="dot" style="background:var(--'+colorToVar(c)+')"></span><span class="si-name">'+p.zone+' – '+p.name+'</span><span class="si-meta">'+(p.unitIds||[]).length+' unit(s)</span><button class="ibtn" data-action="removepost" data-pid="'+p.id+'">🗑</button></div>'}).join('')||'<div style="font-size:11px;color:var(--text3);padding:4px">None yet</div>';
+  var opost=orderedPosts();
+  if(pl)pl.innerHTML=opost.map(function(p){var row=p.rowId?gr(p.rowId):null;var c=row?row.color:'gray';return'<div class="si" draggable="true" data-drag-type="post" data-id="'+p.id+'"><span class="si-handle">⠿</span><span class="dot" style="background:var(--'+colorVar(c)+')"></span><span class="si-name">'+p.name+'</span><span class="si-meta">'+(row?row.label:'unassigned')+'</span><select style="font-size:11px;background:var(--bg3);border:1px solid var(--border);color:var(--text2);border-radius:4px;padding:2px 5px" data-action="setpostrow" data-pid="'+p.id+'"><option value="">No row</option>'+orows.map(function(r){return'<option value="'+r.id+'"'+(p.rowId===r.id?' selected':'')+'>'+r.label+'</option>'}).join('')+'</select><button class="ibtn" data-action="removepost" data-pid="'+p.id+'">🗑</button></div>'}).join('')||'<div style="font-size:11px;color:var(--text3);padding:4px">No posts yet</div>';
 
-  // Zone colors
-  var zcl=document.getElementById('s-zoneColors');
-  var zones=[...new Set(S.posts.map(function(p){return p.zone}))].filter(Boolean);
-  if(zcl)zcl.innerHTML=zones.map(function(z){var cur=S.zoneColors&&S.zoneColors[z]?S.zoneColors[z]:'blue';return'<div class="si"><span class="dot" style="background:var(--'+colorToVar(cur)+')"></span><span class="si-name">'+z+'</span><select class="fi" style="width:110px;font-size:11px;padding:3px 6px" data-action="setzonecolor" data-zone="'+z+'">'+COLORS.map(function(c){return'<option value="'+c+'"'+(c===cur?' selected':'')+'>'+c.charAt(0).toUpperCase()+c.slice(1)+'</option>'}).join('')+'</select></div>'}).join('')||'<div style="font-size:11px;color:var(--text3);padding:4px">Add posts first</div>';
+  // Units
+  var ul=document.getElementById('s-unitList');
+  var ounits=orderedUnits();
+  if(ul)ul.innerHTML=ounits.map(function(u){var sm=getUSM(u.status);return'<div class="si" draggable="true" data-drag-type="unit" data-id="'+u.id+'"><span class="si-handle">⠿</span><span class="dot '+sm.dc+'"></span><span class="si-name">'+u.callsign+(u.name?' — '+u.name:'')+'</span><span class="si-meta">'+sm.l+'</span><button class="ibtn" data-action="removeunit" data-uid="'+u.id+'">🗑</button></div>'}).join('')||'<div style="font-size:11px;color:var(--text3);padding:4px">None yet</div>';
 
   // Statuses
   var sl=document.getElementById('s-statusList');
-  var statuses=S.callStatuses||DEFAULT_STATUSES;
-  if(sl)sl.innerHTML=statuses.map(function(s,i){return'<div class="status-si"><span class="status-label">'+s.l+'</span><span style="font-size:10px;color:var(--text3);margin-right:4px">Color:</span><input type="color" class="color-dot-btn" value="'+s.color+'" data-action="setstatus-color" data-idx="'+i+'"><button class="ibtn" data-action="removestatus" data-idx="'+i+'">🗑</button></div>'}).join('')+'<div class="qa" style="margin-top:8px"><input class="fi" id="s-newstatusname" placeholder="Status name" style="font-size:12px;padding:5px 8px;flex:1"><button class="btn primary" id="btnAddStatus">＋ Add</button></div>';
-  bindStatusBtn();
+  if(sl)sl.innerHTML=(S.callStatuses||[]).map(function(s,i){return'<div class="si"><span class="dot" style="background:'+s.color+'"></span><span class="si-name">'+s.l+'</span><input type="color" value="'+s.color+'" style="width:30px;height:22px;border:none;background:transparent;cursor:pointer;border-radius:3px" data-action="setstcolor" data-idx="'+i+'"><button class="ibtn" data-action="removestatus" data-idx="'+i+'">🗑</button></div>'}).join('')||'<div style="font-size:11px;color:var(--text3);padding:4px">None</div>';
 
   // Resources
-  var rl=document.getElementById('s-resList');
-  var rordered=orderedResources();
-  if(rl)rl.innerHTML=rordered.map(function(r){return'<div class="si draggable" data-drag-type="resource" data-id="'+r.id+'"><span class="si-handle">⠿</span><span class="si-name">'+r.name+'</span><span class="si-meta">'+r.home+'</span><button class="ibtn" data-action="removeres" data-rid="'+r.id+'">🗑</button></div>'}).join('')||'<div style="font-size:11px;color:var(--text3);padding:4px">None yet</div>';
+  var rsl=document.getElementById('s-resList');
+  var ores=orderedResources();
+  if(rsl)rsl.innerHTML=ores.map(function(r){return'<div class="si" draggable="true" data-drag-type="resource" data-id="'+r.id+'"><span class="si-handle">⠿</span><span class="si-name">'+r.name+'</span><span class="si-meta">'+r.home+'</span><button class="ibtn" data-action="removeres" data-rid="'+r.id+'">🗑</button></div>'}).join('')||'<div style="font-size:11px;color:var(--text3);padding:4px">None</div>';
 
-  // Event
   var en=document.getElementById('s-evName');if(en&&!en.value)en.value=S.event.name||'';
   var ed=document.getElementById('s-evDate');if(ed&&!ed.value)ed.value=S.event.date||'';
-
   attachSetupDrag();
 }
 
-function bindStatusBtn(){
-  var btn=document.getElementById('btnAddStatus');
-  if(btn)btn.addEventListener('click',function(){
-    var name=document.getElementById('s-newstatusname').value.trim();if(!name)return;
-    S.callStatuses=S.callStatuses||[];
-    S.callStatuses.push({k:name.toLowerCase().replace(/\s+/g,''),l:name,color:'#8b90a8'});
-    document.getElementById('s-newstatusname').value='';
-    save();renderSetup();
-  });
-}
+function colorVar(c){var m={blue:'accent',green:'green',red:'red',purple:'purple',amber:'amber',teal:'teal',pink:'pink',orange:'orange',indigo:'accent',gray:'text3'};return m[c]||'accent'}
 
-function orderedPosts(){
-  var order=S.postOrder||[];
-  return S.posts.slice().sort(function(a,b){var ai=order.indexOf(a.id),bi=order.indexOf(b.id);return(ai===-1?9999:ai)-(bi===-1?9999:bi)});
-}
-function orderedResources(){
-  var order=S.resourceOrder||[];
-  return S.resources.slice().sort(function(a,b){var ai=order.indexOf(a.id),bi=order.indexOf(b.id);return(ai===-1?9999:ai)-(bi===-1?9999:bi)});
-}
-function colorToVar(c){var map={blue:'accent',green:'green',red:'red',purple:'purple',amber:'amber',teal:'teal',pink:'pink',orange:'orange',indigo:'accent',gray:'text3'};return map[c]||'accent'}
+// ── ORDER HELPERS ──────────────────────────────────────
+function ordered(arr,orderKey){var order=S[orderKey]||[];return arr.slice().sort(function(a,b){var ai=order.indexOf(a.id),bi=order.indexOf(b.id);return(ai===-1?9999:ai)-(bi===-1?9999:bi)})}
+function orderedUnits(){return ordered(S.units,'unitOrder')}
+function orderedPosts(){return ordered(S.posts,'postOrder')}
+function orderedResources(){return ordered(S.resources,'resourceOrder')}
+function orderedRows(){return ordered(S.rows||[],'rowOrder')}
 
-// ── SETUP DRAG REORDER ────────────────────────────────
+// ── SETUP DRAG ─────────────────────────────────────────
 var setupDragSrc=null;
 function attachSetupDrag(){
-  document.querySelectorAll('.si.draggable').forEach(function(el){
-    el.setAttribute('draggable','true');
+  document.querySelectorAll('.si[draggable]').forEach(function(el){
     el.addEventListener('dragstart',function(e){setupDragSrc=el;e.dataTransfer.effectAllowed='move';setTimeout(function(){el.style.opacity='.4'},0)});
     el.addEventListener('dragend',function(){el.style.opacity='';setupDragSrc=null});
     el.addEventListener('dragover',function(e){e.preventDefault()});
     el.addEventListener('drop',function(e){
-      e.preventDefault();
-      if(!setupDragSrc||setupDragSrc===el)return;
+      e.preventDefault();if(!setupDragSrc||setupDragSrc===el)return;
+      if(el.dataset.dragType!==setupDragSrc.dataset.dragType)return;
       var type=el.dataset.dragType;
-      if(type!==setupDragSrc.dataset.dragType)return;
       var srcId=setupDragSrc.dataset.id;var tgtId=el.dataset.id;
-      reorderList(type,srcId,tgtId);
+      var keyMap={unit:'unitOrder',post:'postOrder',resource:'resourceOrder',row:'rowOrder'};
+      var key=keyMap[type];if(!key)return;
+      var order=S[key]||[];var from=order.indexOf(srcId);var to=order.indexOf(tgtId);
+      if(from===-1||to===-1)return;
+      order.splice(from,1);order.splice(to,0,srcId);S[key]=order;
+      save();renderSetup();if(type==='post'||type==='row')renderBoard();
     });
   });
 }
-function reorderList(type,srcId,tgtId){
-  var orderKey=type==='unit'?'unitOrder':type==='post'?'postOrder':'resourceOrder';
-  var order=S[orderKey]||[];
-  var from=order.indexOf(srcId);var to=order.indexOf(tgtId);
-  if(from===-1||to===-1)return;
-  order.splice(from,1);order.splice(to,0,srcId);
-  S[orderKey]=order;save();renderSetup();if(type==='post')renderBoard();
-}
 
-// ── RESOURCES ─────────────────────────────────────────
+// ── RESOURCES ──────────────────────────────────────────
 function renderResources(){
   var el=document.getElementById('resPanel');
-  if(!S.resources.length){el.innerHTML='<div style="font-size:11px;color:var(--text3);padding:12px;text-align:center">Add resources in Setup</div>';return}
-  el.innerHTML=orderedResources().map(function(r){
-    var isHome=r.status==='home';var isUnk=r.status==='unknown';
-    var dc=isHome?'home':isUnk?'unknown':'away';
-    var slabel=isHome?'At home':isUnk?'Location unknown':(r.currentLoc||'Deployed');
-    return '<div class="res-card"><div class="res-name">'+r.name+'</div><div class="res-home">🏠 '+r.home+'</div><div class="res-status"><span class="rdot '+dc+'"></span>'+slabel+'</div><div class="res-btns">'+(isHome?'<button class="rbtn" data-action="deployres" data-rid="'+r.id+'">Deploy</button><button class="rbtn" data-action="deployresunk" data-rid="'+r.id+'">Deploy (?)</button>':'<button class="rbtn" data-action="returnres" data-rid="'+r.id+'">Return home</button>')+'</div></div>';
-  }).join('');
+  if(!S.resources.length){el.innerHTML='<div style="font-size:11px;color:var(--text3);padding:12px;text-align:center">Add in Setup</div>';return}
+  el.innerHTML=orderedResources().map(function(r){var isHome=r.status==='home';var isUnk=r.status==='unknown';var dc=isHome?'home':isUnk?'unknown':'away';var sl=isHome?'At home':isUnk?'Unknown':(r.currentLoc||'Deployed');return'<div class="res-card"><div class="res-name">'+r.name+'</div><div class="res-home">🏠 '+r.home+'</div><div class="res-status"><span class="rdot '+dc+'"></span>'+sl+'</div><div class="res-btns">'+(isHome?'<button class="rbtn" data-action="deployres" data-rid="'+r.id+'">Deploy</button><button class="rbtn" data-action="deployresunk" data-rid="'+r.id+'">Deploy (?)</button>':'<button class="rbtn" data-action="returnres" data-rid="'+r.id+'">Return</button>')+'</div></div>'}).join('');
 }
 
-// ── LOG ───────────────────────────────────────────────
-function renderLog(){document.getElementById('logList').innerHTML=S.log.map(function(l){return'<div class="log-item"><span class="log-time">'+l.time+'</span><span style="color:'+(LC[l.type]||'var(--text2)')+'">'+l.msg+'</span></div>'}).join('')}
+// ── LOG ────────────────────────────────────────────────
+function renderLog(){document.getElementById('logList').innerHTML=S.log.map(function(l){return'<div style="display:flex;gap:8px;padding:5px 0;border-bottom:1px solid var(--border);font-size:11px"><span style="font-family:var(--mono);color:var(--text3);font-size:10px;flex-shrink:0">'+l.time+'</span><span style="color:'+(LC[l.type]||'var(--text2)')+'">'+l.msg+'</span></div>'}).join('')}
 
-// ── TABS ──────────────────────────────────────────────
+// ── TABS ───────────────────────────────────────────────
 function showTab(v){
   document.querySelectorAll('.view').forEach(function(el){el.classList.remove('on')});
   document.getElementById('view-'+v).classList.add('on');
   document.querySelectorAll('.tab').forEach(function(b){b.classList.remove('on')});
   document.querySelector('[data-tab="'+v+'"]').classList.add('on');
-  if(v==='setup')renderSetup();
-  else if(v==='log')renderLog();
-  else if(v==='board')renderBoard();
+  if(v==='setup')renderSetup();else if(v==='log')renderLog();else if(v==='board')renderBoard();
 }
 
-// ── MODALS ────────────────────────────────────────────
+// ── MODALS ─────────────────────────────────────────────
 function openModal(type,arg){
-  var title=document.getElementById('mTitle');
-  var body=document.getElementById('mBody');
-  var foot=document.getElementById('mFoot');
-  foot.innerHTML='';
-
+  var title=document.getElementById('mTitle');var body=document.getElementById('mBody');var foot=document.getElementById('mFoot');foot.innerHTML='';
   if(type==='addUnit'){
     title.textContent='Add unit';
     body.innerHTML='<div class="fr"><div class="fg"><label class="fl">Callsign</label><input class="fi" id="m-cs" placeholder="MED-1"></div><div class="fg"><label class="fl">Team name</label><input class="fi" id="m-uname" placeholder="Optional"></div></div>';
     foot.appendChild(mkBtn('Cancel',false,closeModal));
-    foot.appendChild(mkBtn('Add',true,function(){
-      var cs=document.getElementById('m-cs').value.trim();if(!cs)return;
-      var name=document.getElementById('m-uname').value.trim();
-      var id=mkid();
-      S.units.push({id:id,callsign:cs,name:name,status:'available',postId:null,statusAt:Date.now(),postHistory:[],nextPostId:null,callStatus:null,callStatusAt:null,breakEnd:null,postingStatus:null});
-      S.unitOrder=S.unitOrder||[];S.unitOrder.push(id);
-      addLog('Unit added: '+cs);save();renderAll();closeModal();
-    }));
+    foot.appendChild(mkBtn('Add',true,function(){var cs=document.getElementById('m-cs').value.trim();if(!cs)return;var name=document.getElementById('m-uname').value.trim();var id=mkid();S.units.push({id:id,callsign:cs,name:name,status:'available',postId:null,statusAt:Date.now(),postHistory:[],nextPostId:null,callStatus:null,callStatusAt:null,callTsStack:[],breakEnd:null,postingStatus:null,postedAt:null});S.unitOrder=S.unitOrder||[];S.unitOrder.push(id);addLog('Unit added: '+cs);save();renderAll();closeModal()}));
   }
   else if(type==='addrow'){
     title.textContent='Add row';
-    body.innerHTML='<div class="fg"><label class="fl">Row label (zone name)</label><input class="fi" id="m-rowlabel" placeholder="e.g. Main Stage"></div><div class="fg"><label class="fl">Color</label><select class="fi" id="m-rowcolor">'+COLORS.map(function(c){return'<option value="'+c+'">'+c.charAt(0).toUpperCase()+c.slice(1)+'</option>'}).join('')+'</select></div>';
+    body.innerHTML='<div class="fg"><label class="fl">Row / zone name</label><input class="fi" id="m-rl" placeholder="e.g. Main Stage"></div><div class="fg"><label class="fl">Color</label><select class="fi" id="m-rc">'+COLORS.map(function(c){return'<option value="'+c+'">'+c.charAt(0).toUpperCase()+c.slice(1)+'</option>'}).join('')+'</select></div>';
     foot.appendChild(mkBtn('Cancel',false,closeModal));
-    foot.appendChild(mkBtn('Add row',true,function(){
-      var label=document.getElementById('m-rowlabel').value.trim()||'Row';
-      var color=document.getElementById('m-rowcolor').value;
-      addRow(label,color);closeModal();
-    }));
+    foot.appendChild(mkBtn('Add row',true,function(){addRow(document.getElementById('m-rl').value.trim()||'Row',document.getElementById('m-rc').value);closeModal()}));
   }
   else if(type==='editrow'){
     var row=gr(arg);if(!row)return;
     title.textContent='Edit row';
-    body.innerHTML='<div class="fg"><label class="fl">Label</label><input class="fi" id="m-rlabel" value="'+row.label+'"></div><div class="fg"><label class="fl">Color</label><select class="fi" id="m-rcolor">'+COLORS.map(function(c){return'<option value="'+c+'"'+(c===row.color?' selected':'')+'>'+c.charAt(0).toUpperCase()+c.slice(1)+'</option>'}).join('')+'</select></div>';
+    body.innerHTML='<div class="fg"><label class="fl">Label</label><input class="fi" id="m-erl" value="'+row.label+'"></div><div class="fg"><label class="fl">Color</label><select class="fi" id="m-erc">'+COLORS.map(function(c){return'<option value="'+c+'"'+(c===row.color?' selected':'')+'>'+c.charAt(0).toUpperCase()+c.slice(1)+'</option>'}).join('')+'</select></div>';
     foot.appendChild(mkBtn('Cancel',false,closeModal));
-    foot.appendChild(mkBtn('Save',true,function(){
-      row.label=document.getElementById('m-rlabel').value.trim()||row.label;
-      row.color=document.getElementById('m-rcolor').value;
-      save();renderBoard();closeModal();
-    }));
-  }
-  else if(type==='addposttorow'){
-    var row=gr(arg);if(!row)return;
-    title.textContent='Add post to '+row.label;
-    body.innerHTML='<div class="fg"><label class="fl">Location name</label><input class="fi" id="m-pnm" placeholder="e.g. Stage Left"></div>';
-    foot.appendChild(mkBtn('Cancel',false,closeModal));
-    foot.appendChild(mkBtn('Add',true,function(){
-      var name=document.getElementById('m-pnm').value.trim();if(!name)return;
-      var color=row.color||'blue';
-      if(!S.zoneColors)S.zoneColors={};S.zoneColors[row.label]=color;
-      var id=mkid();
-      S.posts.push({id:id,name:name,zone:row.label,unitIds:[],size:'md'});
-      S.postOrder=S.postOrder||[];S.postOrder.push(id);
-      row.postIds=row.postIds||[];row.postIds.push(id);
-      addLog('Post added: '+row.label+' – '+name);save();renderAll();closeModal();
-    }));
+    foot.appendChild(mkBtn('Save',true,function(){row.label=document.getElementById('m-erl').value.trim()||row.label;row.color=document.getElementById('m-erc').value;save();renderAll();closeModal()}));
   }
   else if(type==='breakunit'){
     var u=gu(arg);if(!u)return;
-    title.textContent='Break / Training — '+u.callsign;
     var selType='break';
-    body.innerHTML='<div class="fg"><label class="fl">Type</label><div style="display:flex;gap:6px;margin-bottom:8px"><button class="btn primary" id="btype-break">Break</button><button class="btn" id="btype-training">Training</button></div></div><div class="fg"><label class="fl">End time</label><input class="fi" type="time" id="m-bendtime" value="'+getNextHalf()+'"></div>';
-    document.getElementById('btype-break').addEventListener('click',function(){selType='break';document.getElementById('btype-break').className='btn primary';document.getElementById('btype-training').className='btn'});
-    document.getElementById('btype-training').addEventListener('click',function(){selType='training';document.getElementById('btype-training').className='btn primary';document.getElementById('btype-break').className='btn'});
+    title.textContent='Break / Training — '+u.callsign;
+    body.innerHTML='<div class="fg"><label class="fl">Type</label><div style="display:flex;gap:6px;margin-bottom:4px"><button class="btn primary" id="btype-b">Break</button><button class="btn" id="btype-t">Training</button></div></div><div class="fg"><label class="fl">End time</label><input class="fi" type="time" id="m-be" value="'+getNextHalf()+'"></div>';
+    document.getElementById('btype-b').addEventListener('click',function(){selType='break';document.getElementById('btype-b').className='btn primary';document.getElementById('btype-t').className='btn'});
+    document.getElementById('btype-t').addEventListener('click',function(){selType='training';document.getElementById('btype-t').className='btn primary';document.getElementById('btype-b').className='btn'});
     foot.appendChild(mkBtn('Cancel',false,closeModal));
-    foot.appendChild(mkBtn('Start',true,function(){
-      var endMs=parseTimeToMs(document.getElementById('m-bendtime').value);
-      startBreak(arg,selType,endMs);closeModal();
-    }));
+    foot.appendChild(mkBtn('Start',true,function(){startBreak(arg,selType,parseTimeToMs(document.getElementById('m-be').value));closeModal()}));
   }
   else if(type==='deployres'){
     var res=S.resources.find(function(r){return r.id===arg});if(!res)return;
     title.textContent='Deploy — '+res.name;
-    body.innerHTML='<div class="fg"><label class="fl">Current location (leave blank if unknown)</label><input class="fi" id="m-resloc" placeholder="e.g. Main Stage pit" value="'+(res.currentLoc&&res.currentLoc!==res.home?res.currentLoc:'')+'"></div>';
+    body.innerHTML='<div class="fg"><label class="fl">Current location (blank = unknown)</label><input class="fi" id="m-resloc" placeholder="e.g. Main Stage pit"></div>';
     foot.appendChild(mkBtn('Cancel',false,closeModal));
-    foot.appendChild(mkBtn('Deploy',true,function(){
-      var loc=document.getElementById('m-resloc').value.trim();
-      res.status=loc?'away':'unknown';res.currentLoc=loc||'?';
-      addLog('Resource deployed: '+res.name+(loc?' → '+loc:''));save();renderResources();closeModal();
-    }));
+    foot.appendChild(mkBtn('Deploy',true,function(){var loc=document.getElementById('m-resloc').value.trim();res.status=loc?'away':'unknown';res.currentLoc=loc||'?';addLog('Resource deployed: '+res.name+(loc?' → '+loc:''));save();renderResources();closeModal()}));
   }
-
+  else if(type==='confirmreset'){
+    title.textContent='Reset board';
+    body.innerHTML='<p style="color:var(--text2);font-size:13px;line-height:1.6">This will clear all unit assignments, statuses, and call history. Posts, units, and resources will stay. Are you sure?</p>';
+    foot.appendChild(mkBtn('Cancel',false,closeModal));
+    foot.appendChild(mkBtn('Yes, reset board',true,function(){bigReset();closeModal()}));
+  }
   document.getElementById('overlay').classList.add('on');
 }
 function mkBtn(label,primary,fn){var b=document.createElement('button');b.textContent=label;b.className='btn'+(primary?' primary':'');b.addEventListener('click',fn);return b}
 function closeModal(){document.getElementById('overlay').classList.remove('on')}
 
-// ── EVENT DELEGATION ──────────────────────────────────
+// ── EVENT DELEGATION ───────────────────────────────────
 document.addEventListener('click',function(e){
   if(e.target===document.getElementById('overlay')){closeModal();return}
   var t=e.target.closest('[data-action]');if(!t)return;
   var a=t.dataset.action;
-  if(a==='setpostingstatus')setPostingStatus(t.dataset.uid,t.dataset.ps);
-  else if(a==='setcallstatus')setCallStatus(t.dataset.uid,t.dataset.cs);
-  else if(a==='unassign'){var u=gu(t.dataset.uid);if(u){var p=u.postId?gp(u.postId):null;if(p)p.unitIds=(p.unitIds||[]).filter(function(i){return i!==u.id});u.postId=null;u.postingStatus=null;if(u.status==='posted')u.status='available';u.statusAt=Date.now();addLog(u.callsign+' removed from post','move');save();renderAll();}}
+  if(a==='setps')setPostingStatus(t.dataset.uid,t.dataset.ps);
+  else if(a==='setcs')setCallStatus(t.dataset.uid,t.dataset.cs);
+  else if(a==='unassign'){
+    snapshot();var u=gu(t.dataset.uid);if(u){var p=u.postId?gp(u.postId):null;if(p)p.unitIds=(p.unitIds||[]).filter(function(i){return i!==u.id});u.postId=null;u.postingStatus=null;if(u.status==='posted')u.status='available';u.statusAt=Date.now();addLog(u.callsign+' removed from post','move');save();renderAll();}
+  }
   else if(a==='removepost')removePost(t.dataset.pid);
   else if(a==='removeunit')removeUnit(t.dataset.uid);
   else if(a==='removeres')removeResource(t.dataset.rid);
-  else if(a==='setsize')setPostSize(t.dataset.pid,t.dataset.sz);
   else if(a==='openbreak')openModal('breakunit',t.dataset.uid);
   else if(a==='resetunit')resetUnit(t.dataset.uid);
   else if(a==='confirmnext')confirmNextPost(t.dataset.uid);
-  else if(a==='addposttorow')openModal('addposttorow',t.dataset.rowId);
   else if(a==='editrow')openModal('editrow',t.dataset.rowId);
   else if(a==='removerow')removeRow(t.dataset.rowId);
-  else if(a==='deployres')openModal('deployres',t.dataset.rid);
-  else if(a==='deployresunk'){var res=S.resources.find(function(r){return r.id===t.dataset.rid});if(res){res.status='unknown';res.currentLoc='?';addLog('Resource deployed (unknown location): '+res.name);save();renderResources();}}
-  else if(a==='returnres'){var res=S.resources.find(function(r){return r.id===t.dataset.rid});if(res){res.status='home';res.currentLoc=res.home;addLog('Resource returned: '+res.name);save();renderResources();}}
   else if(a==='removestatus'){var idx=parseInt(t.dataset.idx);S.callStatuses.splice(idx,1);save();renderSetup();}
+  else if(a==='deployres')openModal('deployres',t.dataset.rid);
+  else if(a==='deployresunk'){var res=S.resources.find(function(r){return r.id===t.dataset.rid});if(res){res.status='unknown';res.currentLoc='?';addLog('Resource deployed (?): '+res.name);save();renderResources();}}
+  else if(a==='returnres'){var res=S.resources.find(function(r){return r.id===t.dataset.rid});if(res){res.status='home';res.currentLoc=res.home;addLog('Resource returned: '+res.name);save();renderResources();}}
 });
 
 document.addEventListener('change',function(e){
   var a=e.target.dataset.action;
   if(a==='assignnow'){var uid=e.target.value;var pid=e.target.dataset.postId;if(uid&&pid){assignNow(uid,pid);e.target.value=''}}
   else if(a==='assignnext'){var uid=e.target.value;var pid=e.target.dataset.postId;if(uid&&pid){setNextPost(uid,pid);e.target.value=''}}
-  else if(a==='setzonecolor'){if(!S.zoneColors)S.zoneColors={};S.zoneColors[e.target.dataset.zone]=e.target.value;save();renderAll();}
-  else if(a==='setstatus-color'){var idx=parseInt(e.target.dataset.idx);if(S.callStatuses[idx])S.callStatuses[idx].color=e.target.value;save();renderBoard();}
+  else if(a==='setstcolor'){var idx=parseInt(e.target.dataset.idx);if(S.callStatuses[idx])S.callStatuses[idx].color=e.target.value;save();renderBoard();renderSidebar();}
+  else if(a==='setpostrow'){
+    snapshot();
+    var pid=e.target.dataset.pid;var rowId=e.target.value||null;var p=gp(pid);if(!p)return;
+    (S.rows||[]).forEach(function(r){r.postIds=(r.postIds||[]).filter(function(i){return i!==pid})});
+    p.rowId=rowId;
+    if(rowId){var row=gr(rowId);if(row){row.postIds=row.postIds||[];if(row.postIds.indexOf(pid)===-1)row.postIds.push(pid)}}
+    save();renderAll();
+  }
 });
 
-// Tab clicks
 document.querySelectorAll('.tab').forEach(function(b){b.addEventListener('click',function(){showTab(b.dataset.tab)})});
 document.getElementById('eventChip').addEventListener('click',function(){showTab('setup')});
 document.getElementById('btnAddRow').addEventListener('click',function(){openModal('addrow')});
-document.getElementById('btnAddUnit').addEventListener('click',function(){openModal('addUnit')});
+document.getElementById('btnAddRowSetup').addEventListener('click',function(){var label=document.getElementById('s-rowlabel').value.trim()||'Row';var color=document.getElementById('s-rowcolor').value;addRow(label,color);document.getElementById('s-rowlabel').value='';renderSetup()});
 document.getElementById('btnAddUnitTop').addEventListener('click',function(){openModal('addUnit')});
 document.getElementById('btnBreakUnit').addEventListener('click',function(){if(S.units.length)openModal('breakunit',S.units[0].id)});
 document.getElementById('btnAddUnitSetup').addEventListener('click',addUnit);
 document.getElementById('btnAddPostSetup').addEventListener('click',addPost);
 document.getElementById('btnAddResource').addEventListener('click',addResource);
-document.getElementById('btnSaveEvent').addEventListener('click',function(){
-  S.event.name=document.getElementById('s-evName').value.trim();
-  S.event.date=document.getElementById('s-evDate').value;
-  if(S.event.name)document.getElementById('eventChip').textContent='⚡ '+S.event.name;
-  addLog('Event: '+S.event.name);save();
-});
+document.getElementById('btnAddStatus').addEventListener('click',function(){var name=document.getElementById('s-newstatus').value.trim();if(!name)return;S.callStatuses=S.callStatuses||[];S.callStatuses.push({k:name.toLowerCase().replace(/\s+/g,'_'),l:name,color:'#8b90a8'});document.getElementById('s-newstatus').value='';save();renderSetup()});
+document.getElementById('btnSaveEvent').addEventListener('click',function(){S.event.name=document.getElementById('s-evName').value.trim();S.event.date=document.getElementById('s-evDate').value;if(S.event.name)document.getElementById('eventChip').textContent='⚡ '+S.event.name;addLog('Event: '+S.event.name);save()});
+document.getElementById('btnUndo').addEventListener('click',undo);
+document.getElementById('btnRedo').addEventListener('click',redo);
+document.getElementById('btnReset').addEventListener('click',function(){openModal('confirmreset')});
 
-// ── INIT ──────────────────────────────────────────────
+// ── INIT ───────────────────────────────────────────────
 (async function(){
   setSS('busy');await pull();
-  if(!S.callStatuses||!S.callStatuses.length)S.callStatuses=DEFAULT_STATUSES;
+  if(!S.callStatuses||!S.callStatuses.length)S.callStatuses=JSON.parse(JSON.stringify(DEFAULT_STATUSES));
   if(!S.rows)S.rows=[];
   if(!S.unitOrder)S.unitOrder=S.units.map(function(u){return u.id});
   if(!S.postOrder)S.postOrder=S.posts.map(function(p){return p.id});
   if(!S.resourceOrder)S.resourceOrder=S.resources.map(function(r){return r.id});
-  if(!S.zoneColors)S.zoneColors={};
+  if(!S.rowOrder)S.rowOrder=(S.rows||[]).map(function(r){return r.id});
   renderAll();
 })();
 </script>
