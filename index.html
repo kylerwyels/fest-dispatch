@@ -1,287 +1,846 @@
-// ══════════════════════════════════════════════════════════════
-// FESTIVAL CAD DISPATCH
-// ──────────────────────────────────────────────────────────────
-// First time:    run setupTriggers once, then run buildCADSheet
-// Every time after: just run buildCADSheet
-// Never edit this script.
-// All your data lives in the Config sheet.
-// ══════════════════════════════════════════════════════════════
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MedDispatch</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#090c12;--bg2:#12151f;--bg3:#1a1e2e;--bg4:#222640;
+  --border:rgba(255,255,255,0.09);--border2:rgba(255,255,255,0.2);
+  --text:#f2f4fc;--text2:#b8bdd8;--text3:#6870a0;
+  --accent:#6aa3ff;--accent2:#2d5fcc;
+  --green:#2ecc80;--amber:#ffb020;--red:#ff5050;--purple:#b48afa;--teal:#30d6c0;
+  --mono:'SF Mono','Fira Code',monospace;
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);height:100vh;overflow:hidden;display:flex;flex-direction:column;font-size:12px}
 
+/* TOPBAR */
+.topbar{display:flex;align-items:center;padding:0 12px;height:44px;background:var(--bg2);border-bottom:1px solid var(--border);gap:6px;flex-shrink:0}
+.logo{font-family:var(--mono);font-size:11px;font-weight:700;letter-spacing:.12em;color:var(--accent);text-transform:uppercase;flex-shrink:0}
+.event-chip{font-size:11px;color:var(--text2);background:var(--bg3);padding:3px 9px;border-radius:4px;border:1px solid var(--border);cursor:pointer;max-width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex-shrink:0}
+.event-chip:hover{border-color:var(--border2)}
+.tab{background:transparent;border:1px solid transparent;color:var(--text2);padding:4px 9px;border-radius:4px;font-size:11px;cursor:pointer;font-weight:500;transition:all .15s;flex-shrink:0}
+.tab:hover{color:var(--text);border-color:var(--border)}
+.tab.on{background:var(--bg3);color:var(--text);border-color:var(--border2)}
+.sep{width:1px;height:18px;background:var(--border);flex-shrink:0}
+.clock{font-family:var(--mono);font-size:12px;color:var(--text2);flex-shrink:0}
+.sync-dot{width:6px;height:6px;border-radius:50%;background:var(--text3);flex-shrink:0}
+.sync-dot.ok{background:var(--green)}.sync-dot.busy{background:var(--amber)}.sync-dot.err{background:var(--red)}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:6px}
 
-function buildCADSheet() {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
+/* ACTIVITY CORNER */
+.activity-corner{position:relative;flex-shrink:0}
+.activity-collapsed{background:var(--bg3);border:1px solid var(--border);border-radius:5px;padding:3px 8px;cursor:pointer;min-width:180px;max-width:260px}
+.activity-collapsed:hover{border-color:var(--border2)}
+.activity-mini-item{font-size:10px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.5}
+.activity-mini-item .t{color:var(--text3);font-family:var(--mono);font-size:9px;margin-right:4px}
+.activity-expand-btn{font-size:9px;color:var(--text3);text-align:right;margin-top:1px;cursor:pointer}
+.activity-panel{position:fixed;top:50px;right:8px;width:300px;background:var(--bg2);border:1px solid var(--border2);border-radius:8px;box-shadow:0 8px 32px rgba(0,0,0,.7);z-index:500;max-height:400px;overflow:hidden;display:flex;flex-direction:column}
+.activity-panel-hdr{padding:8px 12px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
+.activity-panel-scroll{overflow-y:auto;flex:1;padding:6px 10px}
+.ap-item{display:flex;gap:7px;padding:4px 0;border-bottom:1px solid var(--border);font-size:11px}
+.ap-time{font-family:var(--mono);font-size:10px;color:var(--text3);flex-shrink:0;padding-top:1px}
 
-  // ── Config sheet ───────────────────────────────────────────────
-  let config = ss.getSheetByName("Config");
-  if (!config) {
-    config = ss.insertSheet("Config");
-    setupConfig(config);
-  }
+/* LAYOUT */
+.main{display:flex;flex:1;overflow:hidden}
 
-  // ── Dispatch sheet ─────────────────────────────────────────────
-  let dispatch = ss.getSheetByName("Dispatch");
-  if (!dispatch) {
-    dispatch = ss.insertSheet("Dispatch");
-  } else {
-    dispatch.clear();
-    dispatch.clearConditionalFormatRules();
-    dispatch.clearNotes();
-  }
+/* SIDEBAR */
+.sidebar{width:200px;min-width:180px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0}
+.panel-hdr{padding:7px 10px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.panel-scroll{overflow-y:auto;flex:1;padding:5px}
 
-  // ── Meta sheet (hidden — stores row numbers for fast triggers) ─
-  let meta = ss.getSheetByName("_meta");
-  if (!meta) {
-    meta = ss.insertSheet("_meta");
-    meta.hideSheet();
-  } else {
-    meta.clear();
-  }
+/* UNIT CARDS - SIDEBAR */
+.uc{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:7px 9px;margin-bottom:5px;transition:border-color .2s,box-shadow .2s}
+.uc.avail-hi{border-color:var(--green)!important;box-shadow:0 0 0 2px rgba(46,204,128,.15)}
+.uc-top{display:flex;align-items:center;gap:4px;margin-bottom:3px}
+.uc-cs{font-family:var(--mono);font-size:12px;font-weight:700;flex:1}
+.uc-badge{font-size:9px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:2px 5px;border-radius:3px}
+.uc-loc{font-size:10px;color:var(--text2);margin-bottom:2px}
+.uc-callst{font-size:10px;font-weight:600;padding:2px 5px;border-radius:3px;margin-bottom:3px;display:inline-block}
+.uc-ts{font-family:var(--mono);font-size:10px;color:#fff;margin-bottom:3px}
+.uc-next{background:var(--bg4);border:1px solid rgba(106,163,255,.28);border-radius:4px;padding:4px 7px;margin-bottom:4px;font-size:10px}
+.uc-next-lbl{font-size:9px;text-transform:uppercase;letter-spacing:.06em;font-weight:700;color:var(--text3);margin-bottom:2px}
+.uc-next-val{color:var(--accent);font-weight:600;margin-bottom:3px}
+.uc-actions{display:flex;gap:3px;flex-wrap:wrap;margin-top:4px}
 
-  // ── Read Config ────────────────────────────────────────────────
-  const allConfig = config.getDataRange().getValues();
-  const posts     = getConfigList(allConfig, 0);
-  const units     = getConfigList(allConfig, 1);
-  const statuses  = getConfigList(allConfig, 2);
+/* BREAK */
+.break-timer{font-family:var(--mono);font-size:12px;font-weight:700;padding:3px 7px;border-radius:4px;text-align:center;margin:3px 0;border:1px solid var(--border)}
+.break-timer.ok{color:var(--green);border-color:rgba(46,204,128,.3);background:rgba(46,204,128,.06)}
+.break-timer.warn{color:var(--amber);border-color:rgba(255,176,32,.35);background:rgba(255,176,32,.07)}
+.break-timer.over{color:var(--red);border-color:rgba(255,80,80,.4);background:rgba(255,80,80,.07)}
+@keyframes flash{0%,100%{opacity:1}50%{opacity:.2}}.flashing{animation:flash .7s infinite}
 
-  // ── Calculate row numbers ──────────────────────────────────────
-  const S1_DATA = 3;
-  const S1_LAST = S1_DATA + posts.length - 1;
-  const S2_HEAD = S1_LAST + 3;
-  const S2_DATA = S2_HEAD + 2;
-  const S2_LAST = S2_DATA + units.length - 1;
+/* INACTIVE TRAY */
+.inactive-tray{background:var(--bg2);border-bottom:2px solid var(--border2);padding:6px 10px;flex-shrink:0;max-height:120px;overflow-y:auto}
+.inactive-tray-hdr{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin-bottom:5px}
+.inactive-chips{display:flex;flex-wrap:wrap;gap:4px}
+.ichip{background:var(--bg3);border:1px solid var(--border2);border-radius:5px;padding:4px 8px;font-size:11px}
+.ichip-top{display:flex;align-items:center;gap:4px;margin-bottom:2px}
+.ichip-cs{font-family:var(--mono);font-weight:700;font-size:11px;flex:1}
 
-  // ── Store row numbers in meta sheet ───────────────────────────
-  meta.getRange(1, 1, 4, 2).setValues([
-    ["S1_DATA", S1_DATA],
-    ["S1_LAST", S1_LAST],
-    ["S2_DATA", S2_DATA],
-    ["S2_LAST", S2_LAST],
-  ]);
+/* VIEWS */
+.view{display:none;flex:1;overflow:hidden;flex-direction:column}
+.view.on{display:flex}
 
-  // ── Section 1 title and headers ────────────────────────────────
-  dispatch.getRange(1, 1)
-    .setValue("SECTION 1 — POST LOCATIONS")
-    .setFontWeight("bold");
-  dispatch.getRange(2, 1, 1, 4)
-    .setValues([["Post Location", "Unit / Callsign", "Status", "Timestamp"]])
-    .setFontWeight("bold");
+/* BOARD */
+.board-outer{display:flex;flex-direction:column;flex:1;overflow:hidden}
 
-  // ── Section 1 dropdowns and pre-filled posts ───────────────────
-  dispatch.getRange(S1_DATA, 1, posts.length, 1)
-    .setDataValidation(
-      SpreadsheetApp.newDataValidation()
-        .requireValueInRange(config.getRange("A2:A" + (posts.length + 1)), true)
-        .setAllowInvalid(false).build()
-    )
-    .setValues(posts.map(p => [p]));
+/* 5x5 GRID */
+.board-scroll{flex:1;overflow:hidden;padding:8px;display:flex;flex-direction:column}
+.grid-55{display:grid;grid-template-columns:repeat(5,1fr);grid-template-rows:repeat(5,1fr);gap:6px;flex:1;min-height:0}
 
-  dispatch.getRange(S1_DATA, 2, posts.length, 1)
-    .setDataValidation(
-      SpreadsheetApp.newDataValidation()
-        .requireValueInRange(config.getRange("B2:B" + (units.length + 1)), true)
-        .setAllowInvalid(false).build()
-    );
+/* SLOT */
+.slot{border-radius:7px;border:1px dashed rgba(255,255,255,.07);background:rgba(255,255,255,.02);transition:border-color .15s,background .15s;position:relative;min-height:0;overflow:hidden;display:flex;flex-direction:column}
+.slot.drag-over{border-color:var(--accent);background:rgba(106,163,255,.07)}
+.slot.has-card{border-style:solid;border-color:var(--border)}
+.slot.has-card.posted-free{border-color:var(--accent)!important;box-shadow:0 0 0 2px rgba(106,163,255,.15)}
+.slot-empty-hint{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--text3);pointer-events:none;opacity:.5}
 
-  dispatch.getRange(S1_DATA, 3, posts.length, 1)
-    .setDataValidation(
-      SpreadsheetApp.newDataValidation()
-        .requireValueInRange(config.getRange("C2:C" + (statuses.length + 1)), true)
-        .setAllowInvalid(false).build()
-    );
+/* POST CARD (inside slot) */
+.pc{width:100%;height:100%;display:flex;flex-direction:column;overflow:hidden}
+.pc-hdr{display:flex;align-items:center;padding:4px 7px;border-bottom:1px solid var(--border);gap:3px;flex-shrink:0;cursor:grab}
+.pc-hdr:active{cursor:grabbing}
+.pc-title{font-size:10px;font-weight:700;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3}
+.pc-body{padding:5px 6px;flex:1;overflow-y:auto;min-height:0}
+.pc-empty{font-size:10px;color:var(--text3);padding:3px 0;font-style:italic}
+.pc-planned-reminder{background:rgba(255,176,32,.1);border:1px solid rgba(255,176,32,.3);border-radius:3px;padding:3px 5px;margin-bottom:4px;font-size:9px;color:var(--amber);display:flex;align-items:center;justify-content:space-between;gap:3px}
+.pc-planned-reminder.hi{box-shadow:0 0 0 2px rgba(255,176,32,.2);background:rgba(255,176,32,.16)}
 
-  // ── Section 2 title and headers ────────────────────────────────
-  dispatch.getRange(S2_HEAD, 1)
-    .setValue("SECTION 2 — UNIT ROSTER")
-    .setFontWeight("bold");
-  dispatch.getRange(S2_HEAD + 1, 1, 1, 4)
-    .setValues([["Unit / Callsign", "Current Post", "Status", "Timestamp"]])
-    .setFontWeight("bold");
+/* UNIT IN POST */
+.pu{border-radius:5px;padding:5px 6px;margin-bottom:4px;border:1px solid rgba(255,255,255,.07);background:rgba(0,0,0,.25)}
+.pu-top{display:flex;align-items:center;gap:4px;margin-bottom:4px}
+.pu-cs{font-family:var(--mono);font-size:11px;font-weight:700;flex:1}
+.pu-badge{font-size:9px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:2px 5px;border-radius:3px}
 
-  // ── Section 2 unit dropdown and pre-filled units ───────────────
-  dispatch.getRange(S2_DATA, 1, units.length, 1)
-    .setDataValidation(
-      SpreadsheetApp.newDataValidation()
-        .requireValueInRange(config.getRange("B2:B" + (units.length + 1)), true)
-        .setAllowInvalid(false).build()
-    )
-    .setValues(units.map(u => [u]));
+/* POST STATUS (Planned/Posted only) */
+.ps-row{display:flex;gap:3px;margin-bottom:4px}
+.ps-btn{padding:2px 7px;border-radius:3px;font-size:10px;cursor:pointer;font-weight:600;border:1px solid var(--border);background:var(--bg3);color:var(--text2);transition:all .12s;flex:1;text-align:center}
+.ps-btn:hover{border-color:var(--border2);color:var(--text)}
+.ps-btn.on-planned{background:rgba(255,176,32,.13);border-color:var(--amber);color:var(--amber)}
+.ps-btn.on-posted{background:rgba(106,163,255,.15);border-color:var(--accent);color:var(--accent)}
+@keyframes glow{from{box-shadow:none}to{box-shadow:0 0 6px rgba(255,176,32,.4)}}
+.needs-glow{border-color:var(--amber)!important;color:var(--amber)!important;animation:glow 1.3s ease-in-out infinite alternate}
 
-  // ── Section 2 formulas ─────────────────────────────────────────
-  units.forEach((unit, i) => {
-    const r = S2_DATA + i;
-    dispatch.getRange(r, 2).setFormula(
-      `=IFERROR(INDEX(A${S1_DATA}:A${S1_LAST},MATCH(A${r},B${S1_DATA}:B${S1_LAST},0)),"Unassigned")`
-    );
-    dispatch.getRange(r, 3).setFormula(
-      `=IFERROR(INDEX(C${S1_DATA}:C${S1_LAST},MATCH(A${r},B${S1_DATA}:B${S1_LAST},0)),"—")`
-    );
-  });
+/* NEXT TAG */
+.next-tag{background:rgba(255,176,32,.08);border:1px solid rgba(255,176,32,.25);border-radius:3px;padding:3px 5px;margin-bottom:4px;font-size:9px;color:var(--amber);line-height:1.5}
+.ntc{background:rgba(46,204,128,.14);border:1px solid var(--green);color:var(--green);padding:1px 5px;border-radius:3px;font-size:9px;cursor:pointer;font-weight:600;display:inline-block;margin-top:2px}
+.ntc:hover{background:rgba(46,204,128,.25)}
 
-  // ── Freeze header row ──────────────────────────────────────────
-  dispatch.setFrozenRows(2);
+/* CALL STATUS */
+.call-sect{border-top:1px solid var(--border);padding-top:4px;margin-top:2px}
+.call-lbl{font-size:9px;text-transform:uppercase;letter-spacing:.07em;font-weight:700;color:var(--text3);margin-bottom:3px}
+.call-btns{display:flex;flex-wrap:wrap;gap:2px;margin-bottom:3px}
+.cb{padding:2px 5px;border-radius:3px;font-size:10px;cursor:pointer;font-weight:600;border:1px solid var(--border);background:var(--bg3);color:var(--text2);transition:all .1s}
+.cb:hover{border-color:var(--border2);color:var(--text)}
+.cb.active{font-size:11px;font-weight:700;padding:3px 7px}
+.cb.clearcall{border-color:rgba(46,204,128,.4);color:var(--green)}
+.call-ts-stack{font-family:var(--mono);font-size:10px;color:#fff;line-height:1.7;border-left:2px solid var(--border);padding-left:5px;margin-top:3px}
+.call-ts-stack span{display:block}.call-ts-stack span.latest{color:#fff;font-weight:600}
 
-  ss.setActiveSheet(dispatch);
+/* ASSIGN ROW */
+.assign-sect{border-top:1px solid var(--border);padding:4px 6px 5px;flex-shrink:0}
+.asel{background:var(--bg);border:1px solid var(--border);border-radius:3px;color:var(--text2);font-size:10px;padding:2px 4px;width:100%;outline:none;cursor:pointer;margin-bottom:3px}
+.asel:last-child{margin-bottom:0}
+.asel:focus{border-color:var(--accent)}
 
-  SpreadsheetApp.getUi().alert(
-    "Done!\n\n" +
-    posts.length    + " post locations\n" +
-    units.length    + " units\n" +
-    statuses.length + " status codes\n\n" +
-    "To update: edit the Config sheet then run buildCADSheet again."
-  );
+/* TRANSPORT PANEL */
+.rpanel{width:160px;background:var(--bg2);border-left:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0}
+.res-card{background:var(--bg3);border:1px solid var(--border);border-radius:5px;padding:6px 8px;margin-bottom:5px}
+.res-name{font-size:11px;font-weight:700;margin-bottom:1px}
+.res-home{font-size:9px;color:var(--text3);margin-bottom:3px}
+.res-status{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--text2);margin-bottom:4px}
+.rdot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.rdot.home{background:var(--green)}.rdot.away{background:var(--amber)}.rdot.unknown{background:var(--text3)}
+.res-btns{display:flex;gap:2px;flex-wrap:wrap}
+.rbtn{background:var(--bg4);border:1px solid var(--border);color:var(--text2);padding:2px 5px;border-radius:3px;font-size:9px;cursor:pointer}
+.rbtn:hover{border-color:var(--border2);color:var(--text)}
+
+/* SETUP */
+.setup-wrap{padding:12px;overflow-y:auto;flex:1}
+.setup-sec{background:var(--bg2);border:1px solid var(--border);border-radius:7px;padding:11px;margin-bottom:11px}
+.setup-sec-title{font-size:10px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:9px}
+.si{display:flex;align-items:center;gap:6px;background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:6px 9px;margin-bottom:4px;cursor:grab;user-select:none}
+.si:active{cursor:grabbing}
+.si.drag-over-si{border-color:var(--accent)}
+.si-handle{color:var(--text3);font-size:13px;flex-shrink:0}
+.si-name{flex:1;font-size:12px;color:var(--text)}
+.si-meta{font-size:10px;color:var(--text2)}
+.qa{display:flex;gap:4px;margin-top:7px;align-items:center;flex-wrap:wrap}
+
+/* UNITS TAB */
+.units-tab-wrap{padding:12px;overflow-y:auto;flex:1}
+.units-tab-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
+.utc{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;transition:border-color .2s}
+.utc.avail-hi{border-color:var(--green);box-shadow:0 0 0 2px rgba(46,204,128,.12)}
+.utc-cs{font-family:var(--mono);font-size:15px;font-weight:700;margin-bottom:4px}
+.utc-status{font-size:11px;font-weight:600;padding:2px 8px;border-radius:4px;display:inline-block;margin-bottom:5px}
+.utc-loc{font-size:11px;color:var(--text2);margin-bottom:2px}
+.utc-ts{font-family:var(--mono);font-size:10px;color:#fff;margin-bottom:4px}
+.utc-next{font-size:10px;color:var(--accent);margin-bottom:2px}
+
+/* BUTTONS */
+.btn{background:var(--bg3);border:1px solid var(--border);color:var(--text2);padding:4px 9px;border-radius:4px;font-size:11px;cursor:pointer;display:inline-flex;align-items:center;gap:3px;transition:all .15s;white-space:nowrap}
+.btn:hover{border-color:var(--border2);color:var(--text)}
+.btn.primary{background:var(--accent2);border-color:var(--accent);color:#fff}
+.btn.primary:hover{background:var(--accent)}
+.btn.sm{padding:2px 7px;font-size:10px}
+.btn.xs{padding:2px 5px;font-size:9px}
+.btn.danger{border-color:rgba(255,80,80,.4);color:var(--red);background:rgba(255,80,80,.07)}
+.btn.danger:hover{background:rgba(255,80,80,.15)}
+.btn.warnb{border-color:rgba(255,176,32,.35);color:var(--amber);background:rgba(255,176,32,.07)}
+.btn.warnb:hover{background:rgba(255,176,32,.14)}
+.ibtn{background:transparent;border:none;color:var(--text3);cursor:pointer;padding:2px 3px;border-radius:3px;font-size:12px;display:inline-flex;align-items:center;transition:color .15s}
+.ibtn:hover{color:var(--text2)}
+.xbtn{background:transparent;border:none;color:var(--text3);cursor:pointer;padding:1px 3px;border-radius:3px;font-size:12px;line-height:1;transition:color .15s}
+.xbtn:hover{color:var(--red)}
+.dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;display:inline-block;vertical-align:middle}
+.dg{background:var(--green)}.db{background:var(--accent)}.da{background:var(--amber)}.dr{background:var(--red)}.dp{background:var(--purple)}.dt{background:var(--teal)}.d0{background:var(--text3)}
+
+/* STATUS */
+.s-available{background:rgba(46,204,128,.15);color:var(--green)}
+.s-posted{background:rgba(106,163,255,.15);color:var(--accent)}
+.s-break{background:rgba(255,176,32,.13);color:var(--amber)}
+.s-training{background:rgba(106,163,255,.13);color:var(--accent)}
+.s-outofservice{background:rgba(100,110,140,.2);color:var(--text2)}
+
+/* MODAL */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.78);display:none;align-items:center;justify-content:center;z-index:999}
+.overlay.on{display:flex}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:10px;padding:16px;width:380px;max-width:95vw;max-height:88vh;overflow-y:auto}
+.modal-title{font-size:13px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between}
+.fg{margin-bottom:9px}
+.fl{font-size:10px;color:var(--text2);margin-bottom:2px;display:block;font-weight:500}
+.fi{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:4px;color:var(--text);font-size:12px;padding:6px 9px;outline:none}
+.fi:focus{border-color:var(--accent)}
+.fr{display:flex;gap:7px}.fr .fg{flex:1}
+select.fi option{background:var(--bg3)}
+
+/* ZONE COLORS */
+.zh-blue{background:rgba(106,163,255,.15);border-color:rgba(106,163,255,.4)!important;color:#8ec0ff}
+.zh-green{background:rgba(46,204,128,.15);border-color:rgba(46,204,128,.4)!important;color:#5fe09a}
+.zh-red{background:rgba(255,80,80,.15);border-color:rgba(255,80,80,.4)!important;color:#ff8888}
+.zh-purple{background:rgba(180,138,250,.15);border-color:rgba(180,138,250,.4)!important;color:#c8aaff}
+.zh-amber{background:rgba(255,176,32,.15);border-color:rgba(255,176,32,.4)!important;color:#ffc84a}
+.zh-teal{background:rgba(48,214,192,.15);border-color:rgba(48,214,192,.4)!important;color:#60e6d2}
+.zh-pink{background:rgba(244,114,182,.15);border-color:rgba(244,114,182,.4)!important;color:#f7a8d4}
+.zh-orange{background:rgba(251,146,60,.15);border-color:rgba(251,146,60,.4)!important;color:#fcb87a}
+.zh-indigo{background:rgba(129,140,248,.15);border-color:rgba(129,140,248,.4)!important;color:#aab4fc}
+.zh-gray{background:rgba(148,163,184,.1);border-color:rgba(148,163,184,.28)!important;color:#b8c8d8}
+.ph-blue{background:rgba(106,163,255,.1)}.ph-green{background:rgba(46,204,128,.1)}.ph-red{background:rgba(255,80,80,.1)}.ph-purple{background:rgba(180,138,250,.1)}.ph-amber{background:rgba(255,176,32,.1)}.ph-teal{background:rgba(48,214,192,.1)}.ph-pink{background:rgba(244,114,182,.1)}.ph-orange{background:rgba(251,146,60,.1)}.ph-indigo{background:rgba(129,140,248,.1)}.ph-gray{background:rgba(148,163,184,.07)}
+.pb-blue{border-color:rgba(106,163,255,.22)!important}.pb-green{border-color:rgba(46,204,128,.22)!important}.pb-red{border-color:rgba(255,80,80,.22)!important}.pb-purple{border-color:rgba(180,138,250,.22)!important}.pb-amber{border-color:rgba(255,176,32,.22)!important}.pb-teal{border-color:rgba(48,214,192,.22)!important}.pb-pink{border-color:rgba(244,114,182,.22)!important}.pb-orange{border-color:rgba(251,146,60,.22)!important}.pb-indigo{border-color:rgba(129,140,248,.22)!important}.pb-gray{border-color:rgba(148,163,184,.18)!important}
+
+::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+@media(max-width:700px){.sidebar{display:none}.rpanel{display:none}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <span class="logo">MedDispatch</span>
+  <span class="event-chip" id="eventChip">Set event →</span>
+  <button class="tab on" data-tab="board">Board</button>
+  <button class="tab" data-tab="units">Units</button>
+  <button class="tab" data-tab="setup">Setup</button>
+  <button class="tab" data-tab="log">Log</button>
+  <span class="sep"></span>
+  <button class="btn sm" id="btnUndo">↩ Undo</button>
+  <button class="btn sm" id="btnRedo">↪ Redo</button>
+  <button class="btn sm danger" id="btnReset">⟳ Reset</button>
+  <div class="topbar-right">
+    <!-- ACTIVITY CORNER -->
+    <div class="activity-corner" id="activityCorner">
+      <div class="activity-collapsed" id="activityCollapsed">
+        <div id="activityMini"></div>
+        <div class="activity-expand-btn" id="activityExpandBtn">▾ show more</div>
+      </div>
+      <div class="activity-panel" id="activityPanel" style="display:none">
+        <div class="activity-panel-hdr">Activity <button class="ibtn" id="activityCloseBtn" style="font-size:11px">✕</button></div>
+        <div class="activity-panel-scroll" id="activityFull"></div>
+      </div>
+    </div>
+    <span class="sync-dot" id="syncDot"></span>
+    <span class="clock" id="clock">--:--:--</span>
+  </div>
+</div>
+
+<div class="main">
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="panel-hdr">
+    Units <span id="uCount" style="color:var(--text2);margin-left:3px">0</span>
+    <div style="display:flex;gap:2px">
+      <button class="ibtn" id="btnBreakUnit" title="Break">⏱</button>
+      <button class="ibtn" id="btnAddUnitTop" title="Add">＋</button>
+    </div>
+  </div>
+  <div class="panel-scroll" id="unitSidebar"></div>
+</div>
+
+<!-- BOARD VIEW -->
+<div class="view on" id="view-board">
+  <div class="board-outer">
+    <div id="inactiveTray" style="display:none">
+      <div class="inactive-tray">
+        <div class="inactive-tray-hdr">Break / Training / Out of Service</div>
+        <div class="inactive-chips" id="inactiveChips"></div>
+      </div>
+    </div>
+    <div class="board-scroll">
+      <div class="grid-55" id="grid55"></div>
+    </div>
+  </div>
+</div>
+
+<!-- UNITS TAB -->
+<div class="view" id="view-units">
+  <div class="units-tab-wrap">
+    <div class="units-tab-grid" id="unitsTabGrid"></div>
+  </div>
+</div>
+
+<!-- SETUP VIEW -->
+<div class="view" id="view-setup">
+  <div class="setup-wrap">
+    <div class="setup-sec">
+      <div class="setup-sec-title">Event</div>
+      <div class="fr">
+        <div class="fg"><label class="fl">Event name</label><input class="fi" id="s-evName" placeholder="Festival name"></div>
+        <div class="fg"><label class="fl">Date</label><input class="fi" type="date" id="s-evDate"></div>
+      </div>
+      <button class="btn primary" id="btnSaveEvent" style="margin-top:7px">Save event</button>
+    </div>
+    <div class="setup-sec">
+      <div class="setup-sec-title">Units — drag to reorder</div>
+      <div id="s-unitList"></div>
+      <div class="qa">
+        <input class="fi" id="s-cs" placeholder="Callsign e.g. MED-1" style="font-size:11px;padding:4px 7px;flex:1">
+        <input class="fi" id="s-uname" placeholder="Team name (opt)" style="font-size:11px;padding:4px 7px;flex:1">
+        <button class="btn primary" id="btnAddUnitSetup">＋</button>
+      </div>
+    </div>
+    <div class="setup-sec">
+      <div class="setup-sec-title">Post locations — drag to reorder, assign to rows</div>
+      <div id="s-postList"></div>
+      <div class="qa">
+        <input class="fi" id="s-pname" placeholder="Location e.g. Stage Left" style="font-size:11px;padding:4px 7px;flex:2">
+        <select class="fi" id="s-prowid" style="font-size:11px;padding:4px 7px;flex:1"><option value="">No row</option></select>
+        <button class="btn primary" id="btnAddPostSetup">＋</button>
+      </div>
+    </div>
+    <div class="setup-sec">
+      <div class="setup-sec-title">Rows / zones</div>
+      <div id="s-rowList"></div>
+      <div class="qa">
+        <input class="fi" id="s-rowlabel" placeholder="Row name e.g. Main Stage" style="font-size:11px;padding:4px 7px;flex:2">
+        <select class="fi" id="s-rowcolor" style="font-size:11px;padding:4px 7px;flex:1">
+          <option value="blue">Blue</option><option value="green">Green</option><option value="red">Red</option>
+          <option value="purple">Purple</option><option value="amber">Amber</option><option value="teal">Teal</option>
+          <option value="pink">Pink</option><option value="orange">Orange</option><option value="indigo">Indigo</option><option value="gray">Gray</option>
+        </select>
+        <button class="btn primary" id="btnAddRowSetup">＋</button>
+      </div>
+    </div>
+    <div class="setup-sec">
+      <div class="setup-sec-title">Call statuses &amp; colors</div>
+      <div id="s-statusList"></div>
+      <div class="qa">
+        <input class="fi" id="s-newstatus" placeholder="Status name" style="font-size:11px;padding:4px 7px;flex:1">
+        <button class="btn primary" id="btnAddStatus">＋</button>
+      </div>
+    </div>
+    <div class="setup-sec">
+      <div class="setup-sec-title">Transport resources — drag to reorder</div>
+      <div id="s-resList"></div>
+      <div class="qa">
+        <input class="fi" id="s-rname" placeholder="Name e.g. Wheelchair 1" style="font-size:11px;padding:4px 7px;flex:2">
+        <input class="fi" id="s-rloc" placeholder="Home location" style="font-size:11px;padding:4px 7px;flex:2">
+        <button class="btn primary" id="btnAddResource">＋</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- LOG VIEW -->
+<div class="view" id="view-log">
+  <div style="padding:12px;flex:1;overflow-y:auto">
+    <div style="font-size:11px;color:var(--text2);margin-bottom:8px;font-weight:600">Full log — newest first</div>
+    <div id="logList"></div>
+  </div>
+</div>
+
+<!-- TRANSPORT -->
+<div class="rpanel">
+  <div class="panel-hdr">Transport</div>
+  <div class="panel-scroll" id="resPanel"></div>
+</div>
+
+</div>
+
+<!-- MODAL -->
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <div class="modal-title" id="mTitle"></div>
+    <div id="mBody"></div>
+    <div id="mFoot" style="display:flex;gap:7px;justify-content:flex-end;margin-top:12px"></div>
+  </div>
+</div>
+
+<script>
+var SB_URL='https://rtievdrzjxuqsfoiotqm.supabase.co';
+var SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ0aWV2ZHJ6anh1cXNmb2lvdHFtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgwNzc1MDIsImV4cCI6MjA5MzY1MzUwMn0.Vu8FgDUdCe-P5gErfbvrfTrB20nn2xGfk--2GwgQETk';
+var H={'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY};
+
+var DEFAULT_STATUSES=[
+  {k:'responding',l:'Responding',color:'#ffb020'},
+  {k:'onscene',l:'On Scene',color:'#ff5050'},
+  {k:'transporting',l:'Transporting',color:'#b48afa'},
+  {k:'arrival',l:'Arrival',color:'#30d6c0'},
+];
+var COLORS=['blue','green','red','purple','amber','teal','pink','orange','indigo','gray'];
+var GRID_SIZE=25;
+
+var S={
+  event:{name:'',date:''},
+  units:[],posts:[],resources:[],rows:[],
+  callStatuses:JSON.parse(JSON.stringify(DEFAULT_STATUSES)),
+  log:[],
+  unitOrder:[],postOrder:[],resourceOrder:[],rowOrder:[],
+  gridSlots:{} // slotIndex(0-24) -> postId
+};
+
+// UNDO/REDO
+var undoStack=[],redoStack=[];
+function snapshot(){undoStack.push(JSON.stringify(S));if(undoStack.length>10)undoStack.shift();redoStack=[]}
+function undo(){if(!undoStack.length)return;redoStack.push(JSON.stringify(S));S=JSON.parse(undoStack.pop());renderAll()}
+function redo(){if(!redoStack.length)return;undoStack.push(JSON.stringify(S));S=JSON.parse(redoStack.pop());renderAll()}
+
+var saveTimer=null,lastSaved=0;
+
+// ── SYNC ──────────────────────────────────────────────
+function setSS(s){document.getElementById('syncDot').className='sync-dot '+s}
+async function push(){setSS('busy');try{var r=await fetch(SB_URL+'/rest/v1/dispatch_state?id=eq.main',{method:'PATCH',headers:Object.assign({'Prefer':'return=minimal'},H),body:JSON.stringify({data:S,updated_at:new Date().toISOString()})});if(r.ok){setSS('ok');lastSaved=Date.now();localStorage.setItem('mdd',JSON.stringify(S))}else setSS('err')}catch(e){setSS('err');localStorage.setItem('mdd',JSON.stringify(S))}}
+async function pull(){try{var r=await fetch(SB_URL+'/rest/v1/dispatch_state?id=eq.main&select=data',{headers:H});if(r.ok){var rows=await r.json();if(rows.length&&rows[0].data&&Object.keys(rows[0].data).length>0){S=Object.assign({},S,rows[0].data);setSS('ok');return}}}catch(e){}try{var b=localStorage.getItem('mdd');if(b){S=Object.assign({},S,JSON.parse(b));setSS('err')}}catch(e){}}
+function save(){localStorage.setItem('mdd',JSON.stringify(S));clearTimeout(saveTimer);saveTimer=setTimeout(push,1500)}
+async function poll(){if(Date.now()-lastSaved<1000)return;try{var r=await fetch(SB_URL+'/rest/v1/dispatch_state?id=eq.main&select=data,updated_at',{headers:H});if(r.ok){var rows=await r.json();if(rows.length){var rt=new Date(rows[0].updated_at).getTime();if(rt>lastSaved+1000){S=Object.assign({},S,rows[0].data);lastSaved=rt;renderAll();setSS('ok')}}}}catch(e){}}
+setInterval(poll,2000);
+setInterval(function(){try{fetch(SB_URL+'/rest/v1/dispatch_state?id=eq.main&select=id',{headers:H})}catch(e){}},86400000);
+
+// ── CLOCK ──────────────────────────────────────────────
+function tick(){var n=new Date();document.getElementById('clock').textContent=n.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false})}
+setInterval(tick,1000);tick();
+setInterval(function(){if(S.units.some(isInactive)){renderInactiveTray();renderSidebar()}},15000);
+
+// ── HELPERS ────────────────────────────────────────────
+function gu(id){return S.units.find(function(u){return u.id===id})}
+function gp(id){return S.posts.find(function(p){return p.id===id})}
+function gr(id){return(S.rows||[]).find(function(r){return r.id===id})}
+function mkid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
+function nowt(){return new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:false})}
+function nowts(){return new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false})}
+function isInactive(u){return u.status==='break'||u.status==='training'||u.status==='outofservice'}
+var USM={available:{l:'Available',dc:'dg',bc:'s-available'},posted:{l:'Posted',dc:'db',bc:'s-posted'},break:{l:'Break',dc:'da',bc:'s-break'},training:{l:'Training',dc:'db',bc:'s-training'},outofservice:{l:'Out of Service',dc:'d0',bc:'s-outofservice'}};
+function getUSM(k){return USM[k]||USM.available}
+function colorVar(c){var m={blue:'accent',green:'green',red:'red',purple:'purple',amber:'amber',teal:'teal',pink:'pink',orange:'orange',indigo:'accent',gray:'text3'};return m[c]||'accent'}
+function rowColor(rid){var r=gr(rid);return r?r.color:'gray'}
+function postColor(p){if(!p)return'gray';if(p.rowId){var r=gr(p.rowId);return r?r.color:'gray'}return'gray'}
+
+// ── LOG ────────────────────────────────────────────────
+var LC={info:'var(--text2)',warn:'var(--amber)',call:'var(--red)',move:'var(--accent)'};
+function addLog(msg,type){type=type||'info';var t=nowts();S.log.unshift({time:t,msg:msg,type:type});if(S.log.length>500)S.log.pop();renderActivity()}
+
+function renderActivity(){
+  var log=S.log||[];
+  // Mini (collapsed)
+  var mini=document.getElementById('activityMini');
+  if(mini)mini.innerHTML=log.slice(0,5).map(function(l){return'<div class="activity-mini-item"><span class="t">'+l.time+'</span><span style="color:'+(LC[l.type]||'var(--text2)')+'">'+l.msg+'</span></div>'}).join('');
+  // Full panel
+  var full=document.getElementById('activityFull');
+  if(full)full.innerHTML=log.slice(0,80).map(function(l){return'<div class="ap-item"><span class="ap-time">'+l.time+'</span><span style="color:'+(LC[l.type]||'var(--text2)')+'">'+l.msg+'</span></div>'}).join('');
 }
 
+// Activity toggle
+document.getElementById('activityExpandBtn').addEventListener('click',function(e){e.stopPropagation();var p=document.getElementById('activityPanel');p.style.display=p.style.display==='none'?'flex':'none'});
+document.getElementById('activityCloseBtn').addEventListener('click',function(e){e.stopPropagation();document.getElementById('activityPanel').style.display='none'});
+document.addEventListener('click',function(e){var p=document.getElementById('activityPanel');if(p.style.display!=='none'&&!document.getElementById('activityCorner').contains(e.target))p.style.display='none'});
 
-// ══════════════════════════════════════════════════════════════
-// RUN ONCE — sets up the edit and change triggers
-// Only need to run this again if triggers stop working
-// ══════════════════════════════════════════════════════════════
+// ── UNITS ──────────────────────────────────────────────
+function addUnit(){var cs=document.getElementById('s-cs').value.trim();if(!cs)return;var name=document.getElementById('s-uname').value.trim();var id=mkid();S.units.push({id:id,callsign:cs,name:name,status:'available',postId:null,statusAt:Date.now(),postHistory:[],nextPostId:null,callStatus:null,callStatusAt:null,callTsStack:[],breakEnd:null,postingStatus:null,postedAt:null});S.unitOrder=S.unitOrder||[];S.unitOrder.push(id);document.getElementById('s-cs').value='';document.getElementById('s-uname').value='';addLog('Unit added: '+cs);save();renderAll()}
+function removeUnit(id){snapshot();var u=gu(id);if(!u)return;detachUnit(id);S.units=S.units.filter(function(u){return u.id!==id});S.unitOrder=(S.unitOrder||[]).filter(function(i){return i!==id});addLog('Unit removed: '+u.callsign,'warn');save();renderAll()}
+function resetUnit(id){snapshot();var u=gu(id);if(!u)return;detachUnit(id);u.status='available';u.statusAt=Date.now();u.callStatus=null;u.callStatusAt=null;u.callTsStack=[];u.nextPostId=null;u.breakEnd=null;u.postingStatus=null;u.postedAt=null;addLog(u.callsign+' reset','warn');save();renderAll()}
+function detachUnit(uid){var u=gu(uid);if(!u)return;if(u.postId){var p=gp(u.postId);if(p)p.unitIds=(p.unitIds||[]).filter(function(i){return i!==uid})}u.postId=null;u.postingStatus=null;if(u.status==='posted')u.status='available'}
 
-function setupTriggers() {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
-  ScriptApp.getProjectTriggers().forEach(t => ScriptApp.deleteTrigger(t));
-  ScriptApp.newTrigger("onEditHandler").forSpreadsheet(ss).onEdit().create();
-  ScriptApp.newTrigger("onChangeHandler").forSpreadsheet(ss).onChange().create();
-  SpreadsheetApp.getUi().alert("Triggers set up successfully.");
+// ── ASSIGN ─────────────────────────────────────────────
+function assignNow(uid,postId){snapshot();var u=gu(uid),p=gp(postId);if(!u||!p)return;if(u.postId&&u.postId!==postId){var op=gp(u.postId);if(op)op.unitIds=(op.unitIds||[]).filter(function(i){return i!==uid})}u.postId=postId;u.status='posted';u.statusAt=Date.now();u.postingStatus='planned';u.callStatus=null;u.callStatusAt=null;u.callTsStack=[];u.postedAt=null;p.unitIds=p.unitIds||[];if(p.unitIds.indexOf(uid)===-1)p.unitIds.push(uid);u.postHistory=u.postHistory||[];u.postHistory.push({postId:postId,postName:p.name,time:nowt()});if(u.nextPostId===postId)u.nextPostId=null;addLog(u.callsign+' → '+p.name,'move');save();renderAll()}
+function setNextPost(uid,postId){snapshot();var u=gu(uid);if(!u)return;u.nextPostId=postId||null;var p=postId?gp(postId):null;if(p)addLog(u.callsign+' planned → '+p.name);save();renderAll()}
+function confirmNextPost(uid){var u=gu(uid);if(!u||!u.nextPostId)return;assignNow(uid,u.nextPostId)}
+
+function setPostingStatus(uid,ps){
+  snapshot();var u=gu(uid);if(!u)return;
+  if(ps==='posted'){u.postingStatus='posted';u.postedAt=nowt();addLog(u.callsign+' posted')}
+  else if(ps==='planned'){u.postingStatus='planned';u.callStatus=null;u.callStatusAt=null;u.callTsStack=[];addLog(u.callsign+' → planned')}
+  save();renderAll();
 }
 
-
-// ══════════════════════════════════════════════════════════════
-// TRIGGERS
-// ══════════════════════════════════════════════════════════════
-
-// Fires on every direct cell edit
-function onEditHandler(e) {
-  const ss    = e.source;
-  const sheet = e.range.getSheet();
-  const row   = e.range.getRow();
-  const col   = e.range.getColumn();
-
-  if (sheet.getName() !== "Dispatch") return;
-
-  const m = getMeta(ss);
-  if (!m) return;
-
-  const now = Utilities.formatDate(
-    new Date(), ss.getSpreadsheetTimeZone(), "HH:mm:ss"
-  );
-
-  // S1 col C (status) changed — stamp or clear S1 col D
-  if (col === 3 && row >= m.S1_DATA && row <= m.S1_LAST) {
-    const status = sheet.getRange(row, 3).getValue();
-    sheet.getRange(row, 4).setValue(status !== "" ? now : "");
-    return;
-  }
-
-  // S1 col B (unit) cleared — clear S1 col D
-  if (col === 2 && row >= m.S1_DATA && row <= m.S1_LAST) {
-    const unit = sheet.getRange(row, 2).getValue();
-    if (unit === "") sheet.getRange(row, 4).clearContent();
-    return;
-  }
-
-  // S2 col A (unit) added or changed — stamp S2 col D
-  if (col === 1 && row >= m.S2_DATA && row <= m.S2_LAST) {
-    const unit = sheet.getRange(row, 1).getValue();
-    sheet.getRange(row, 4).setValue(unit !== "" ? now : "");
-    return;
-  }
+function setCallStatus(uid,cs){
+  snapshot();var u=gu(uid);if(!u)return;
+  if(cs==='clearcall'){u.callStatus=null;u.callStatusAt=null;u.callTsStack=[];u.postingStatus='planned';addLog(u.callsign+' call cleared')}
+  else{u.callStatus=cs;u.callStatusAt=Date.now();u.postingStatus='oncall';var st=S.callStatuses.find(function(s){return s.k===cs});u.callTsStack=u.callTsStack||[];u.callTsStack.push({k:cs,l:st?st.l:cs,time:nowt()});addLog(u.callsign+' → '+(st?st.l:cs),'call')}
+  save();renderAll();
 }
 
+// ── BREAK ──────────────────────────────────────────────
+function startBreak(uid,type,endMs){snapshot();var u=gu(uid);if(!u)return;detachUnit(uid);u.status=type;u.statusAt=Date.now();u.breakEnd=endMs;u.callStatus=null;u.callTsStack=[];addLog(u.callsign+' → '+type,'warn');save();renderAll()}
+function parseTimeToMs(t){var p=t.split(':');var h=parseInt(p[0]);var m=parseInt(p[1])||0;var now=new Date();var end=new Date(now.getFullYear(),now.getMonth(),now.getDate(),h,m,0,0);if(end<=now)end.setDate(end.getDate()+1);return end.getTime()}
+function getNextHalf(){var n=new Date();var m=n.getMinutes();var add=m<30?30-m:60-m;n.setMinutes(n.getMinutes()+add,0,0);return String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0')}
 
-// Fires when any formula recalculates — catches S2 col C updating
-function onChangeHandler(e) {
-  const ss    = e.source;
-  const sheet = ss.getSheetByName("Dispatch");
-  if (!sheet) return;
+// ── POSTS & ROWS ───────────────────────────────────────
+function addPost(){snapshot();var name=document.getElementById('s-pname').value.trim();if(!name)return;var rowId=document.getElementById('s-prowid').value||null;var id=mkid();S.posts.push({id:id,name:name,unitIds:[],rowId:rowId});S.postOrder=S.postOrder||[];S.postOrder.push(id);if(rowId){var row=gr(rowId);if(row){row.postIds=row.postIds||[];row.postIds.push(id)}}
+// Auto-place in first empty grid slot
+S.gridSlots=S.gridSlots||{};
+for(var i=0;i<GRID_SIZE;i++){if(!S.gridSlots[i]){S.gridSlots[i]=id;break}}
+document.getElementById('s-pname').value='';addLog('Post added: '+name);save();renderAll()}
+function removePost(id){snapshot();var p=gp(id);if(!p)return;(p.unitIds||[]).forEach(function(uid){var u=gu(uid);if(u){u.postId=null;u.postingStatus=null;if(u.status==='posted')u.status='available'}});(S.rows||[]).forEach(function(r){r.postIds=(r.postIds||[]).filter(function(i){return i!==id})});// Clear from grid
+Object.keys(S.gridSlots||{}).forEach(function(k){if(S.gridSlots[k]===id)delete S.gridSlots[k]});S.posts=S.posts.filter(function(p){return p.id!==id});S.postOrder=(S.postOrder||[]).filter(function(i){return i!==id});addLog('Post removed: '+p.name,'warn');save();renderAll()}
+function addRow(label,color){snapshot();var id=mkid();S.rows=S.rows||[];S.rows.push({id:id,label:label||'Row',color:color||'blue',postIds:[]});S.rowOrder=S.rowOrder||[];S.rowOrder.push(id);save();renderAll()}
+function removeRow(id){snapshot();var row=gr(id);if(!row)return;S.rows=S.rows.filter(function(r){return r.id!==id});S.rowOrder=(S.rowOrder||[]).filter(function(i){return i!==id});save();renderAll()}
 
-  const m = getMeta(ss);
-  if (!m) return;
+// ── RESOURCES ──────────────────────────────────────────
+function addResource(){var name=document.getElementById('s-rname').value.trim();if(!name)return;var loc=document.getElementById('s-rloc').value.trim();var id=mkid();S.resources.push({id:id,name:name,home:loc,status:'home',currentLoc:loc});S.resourceOrder=S.resourceOrder||[];S.resourceOrder.push(id);document.getElementById('s-rname').value='';document.getElementById('s-rloc').value='';addLog('Resource added: '+name);save();renderAll()}
+function removeResource(id){S.resources=S.resources.filter(function(r){return r.id!==id});S.resourceOrder=(S.resourceOrder||[]).filter(function(i){return i!==id});save();renderAll()}
 
-  const now = Utilities.formatDate(
-    new Date(), ss.getSpreadsheetTimeZone(), "HH:mm:ss"
-  );
+// ── RESET ──────────────────────────────────────────────
+function bigReset(){snapshot();S.units.forEach(function(u){u.status='available';u.postId=null;u.postingStatus=null;u.callStatus=null;u.callStatusAt=null;u.callTsStack=[];u.nextPostId=null;u.breakEnd=null;u.postedAt=null;u.statusAt=Date.now()});S.posts.forEach(function(p){p.unitIds=[]});S.resources.forEach(function(r){r.status='home';r.currentLoc=r.home});addLog('Board reset','warn');save();renderAll()}
 
-  // Read all of S2 in one batch call
-  const s2Rows = sheet
-    .getRange(m.S2_DATA, 1, m.S2_LAST - m.S2_DATA + 1, 3)
-    .getValues();
+// ── RENDER ALL ─────────────────────────────────────────
+function renderAll(){
+  renderSidebar();renderBoard();renderResources();renderActivity();
+  document.getElementById('uCount').textContent=S.units.length;
+  if(S.event.name)document.getElementById('eventChip').textContent='⚡ '+S.event.name;
+  if(document.getElementById('view-setup').classList.contains('on'))renderSetup();
+  if(document.getElementById('view-log').classList.contains('on'))renderLog();
+  if(document.getElementById('view-units').classList.contains('on'))renderUnitsTab();
+}
 
-  // Stamp col D for any unit that has a real status
-  s2Rows.forEach((row, i) => {
-    const unit   = row[0];
-    const status = row[2];
-    if (unit !== "" && status !== "—" && status !== "") {
-      sheet.getRange(m.S2_DATA + i, 4).setValue(now);
+// ── SIDEBAR ────────────────────────────────────────────
+function renderSidebar(){
+  var el=document.getElementById('unitSidebar');var units=orderedUnits();
+  if(!units.length){el.innerHTML='<div style="font-size:11px;color:var(--text3);padding:12px;text-align:center">Add units in Setup</div>';return}
+  el.innerHTML=units.map(function(u){
+    var sm=getUSM(u.status);
+    var post=u.postId?gp(u.postId):null;
+    var lastPost=u.postHistory&&u.postHistory.length?u.postHistory[u.postHistory.length-1]:null;
+    var locLine=post?'<div class="uc-loc">📍 '+post.name+'</div>':(lastPost?'<div class="uc-loc" style="color:var(--text3)">Last: '+lastPost.postName+'</div>':'');
+    // Show call status if active
+    var callSt=u.callStatus?S.callStatuses.find(function(s){return s.k===u.callStatus}):null;
+    var callLine=callSt?'<div class="uc-callst" style="background:'+hexRgba(callSt.color,.15)+';color:'+callSt.color+'">'+callSt.l+'</div>':'';
+    // Timestamp
+    var ts='';if(u.statusAt){var mins=Math.floor((Date.now()-u.statusAt)/60000);var label=callSt?callSt.l:sm.l;ts='<div class="uc-ts">'+label+(u.postedAt?' from '+u.postedAt:'')+' · '+mins+'m</div>'}
+    // Break
+    var brk='';if((u.status==='break'||u.status==='training')&&u.breakEnd){var diff=u.breakEnd-Date.now();var abs=Math.abs(diff);var bm=Math.floor(abs/60000);var bs=Math.floor((abs%60000)/1000);var cls=diff>300000?'ok':diff>0?'warn':'over';var flash=diff<=0?' flashing':'';brk='<div class="break-timer '+cls+flash+'">'+(diff>0?'':'-')+bm+'m'+String(bs).padStart(2,'0')+'s</div>'}
+    // Next post
+    var nxt='';if(u.nextPostId){var np=gp(u.nextPostId);if(np){var canC=u.status==='available'||!u.postId;nxt='<div class="uc-next"><div class="uc-next-lbl">Planned</div><div class="uc-next-val">'+np.name+'</div>'+(canC?'<button class="btn xs primary" data-action="confirmnext" data-uid="'+u.id+'">→ Confirm</button>':'<span style="font-size:9px;color:var(--text3)">Pending</span>')+'</div>'}}
+    var isAvail=u.status==='available'&&!u.postId;
+    return '<div class="uc'+(isAvail?' avail-hi':'')+'"><div class="uc-top"><span class="dot '+sm.dc+'"></span><span class="uc-cs">'+u.callsign+'</span><span class="uc-badge '+sm.bc+'">'+sm.l+'</span></div>'+locLine+callLine+ts+brk+nxt+'<div class="uc-actions"><button class="btn xs" data-action="openbreak" data-uid="'+u.id+'">Break</button><button class="btn xs warnb" data-action="resetunit" data-uid="'+u.id+'">Reset</button><button class="xbtn" data-action="removeunit" data-uid="'+u.id+'">🗑</button></div></div>';
+  }).join('');
+}
+
+// ── INACTIVE TRAY ──────────────────────────────────────
+function renderInactiveTray(){
+  var inactive=S.units.filter(isInactive);var tray=document.getElementById('inactiveTray');
+  if(!inactive.length){tray.style.display='none';return}tray.style.display='block';
+  document.getElementById('inactiveChips').innerHTML=inactive.map(function(u){var sm=getUSM(u.status);var brk='';if(u.breakEnd){var diff=u.breakEnd-Date.now();var abs=Math.abs(diff);var bm=Math.floor(abs/60000);var bs=Math.floor((abs%60000)/1000);var cls=diff>300000?'ok':diff>0?'warn':'over';var flash=diff<=0?' flashing':'';brk='<div class="break-timer '+cls+flash+'" style="font-size:10px;padding:2px 5px;margin:2px 0">'+(diff>0?'':'-')+bm+'m'+String(bs).padStart(2,'0')+'s</div>'}return'<div class="ichip"><div class="ichip-top"><span class="dot '+sm.dc+'"></span><span class="ichip-cs">'+u.callsign+'</span><span class="uc-badge '+sm.bc+'" style="font-size:8px">'+sm.l+'</span><button class="btn xs" data-action="resetunit" data-uid="'+u.id+'" style="margin-left:auto">Clear</button></div>'+brk+'</div>'}).join('');
+}
+
+// ── 5x5 GRID BOARD ────────────────────────────────────
+var boardDragPostId=null;
+function renderBoard(){
+  renderInactiveTray();
+  var grid=document.getElementById('grid55');
+  grid.innerHTML='';
+  for(var i=0;i<GRID_SIZE;i++){
+    var slot=document.createElement('div');
+    slot.className='slot';
+    slot.dataset.slotIdx=i;
+    var postId=(S.gridSlots||{})[i];
+    var p=postId?gp(postId):null;
+    if(p){
+      var units=(p.unitIds||[]).map(function(id){return gu(id)}).filter(Boolean);
+      var isFree=units.length>0&&units.some(function(u){return u.postingStatus==='posted'&&!u.callStatus});
+      slot.classList.add('has-card');
+      if(isFree)slot.classList.add('posted-free');
+      var c=postColor(p);
+      slot.innerHTML=renderPostCardHtml(p,units,c);
+    } else {
+      slot.innerHTML='<div class="slot-empty-hint">empty</div>';
     }
+    // Drag events for slot
+    slot.addEventListener('dragover',function(e){e.preventDefault();this.classList.add('drag-over')});
+    slot.addEventListener('dragleave',function(){this.classList.remove('drag-over')});
+    slot.addEventListener('drop',function(e){
+      e.preventDefault();this.classList.remove('drag-over');
+      var targetIdx=parseInt(this.dataset.slotIdx);
+      var srcIdxStr=e.dataTransfer.getData('slotIdx');
+      var srcIdx=srcIdxStr!==''?parseInt(srcIdxStr):NaN;
+      if(!isNaN(srcIdx)&&srcIdx!==targetIdx){
+        // Swap two slots
+        var tmp=(S.gridSlots||{})[targetIdx]||null;
+        S.gridSlots=S.gridSlots||{};
+        if((S.gridSlots||{})[srcIdx])S.gridSlots[targetIdx]=S.gridSlots[srcIdx];
+        else delete S.gridSlots[targetIdx];
+        if(tmp)S.gridSlots[srcIdx]=tmp;
+        else delete S.gridSlots[srcIdx];
+        save();renderBoard();
+      } else if(boardDragPostId){
+        // Place from setup list
+        S.gridSlots=S.gridSlots||{};
+        S.gridSlots[targetIdx]=boardDragPostId;
+        save();renderBoard();
+      }
+      boardDragPostId=null;
+    });
+    grid.appendChild(slot);
+  }
+  // Attach drag handles after render
+  grid.querySelectorAll('.pc-hdr[draggable]').forEach(function(hdr){
+    hdr.addEventListener('dragstart',function(e){
+      var slotEl=hdr.closest('.slot');
+      if(!slotEl)return;
+      var idx=slotEl.dataset.slotIdx;
+      boardDragPostId=(S.gridSlots||{})[idx]||null;
+      e.dataTransfer.setData('slotIdx',idx!==undefined?String(idx):'');
+      e.dataTransfer.effectAllowed='move';
+      setTimeout(function(){slotEl.style.opacity='.4'},0);
+    });
+    hdr.addEventListener('dragend',function(){
+      document.querySelectorAll('.slot').forEach(function(s){s.style.opacity=''});
+      boardDragPostId=null;
+    });
+  });
+  // Re-attach inner button events via delegation (already handled globally)
+}
+
+function renderPostCardHtml(p,units,color){
+  color=color||'gray';
+  var plannedUnits=S.units.filter(function(u){return u.nextPostId===p.id&&u.postId!==p.id});
+  var plannedHtml=plannedUnits.map(function(u){var isAvail=u.status==='available';return'<div class="pc-planned-reminder'+(isAvail?' hi':'')+'"><span>🔜 '+u.callsign+'</span>'+(isAvail?'<button class="ntc" data-action="confirmnext" data-uid="'+u.id+'">→</button>':'')+'</div>'}).join('');
+  var unitsHtml=units.map(function(u){return renderUnitInPostHtml(u)}).join('');
+  var empty=units.length?'':'<div class="pc-empty">empty</div>';
+  var avail=S.units.filter(function(u){return!isInactive(u)&&!units.find(function(x){return x.id===u.id})});
+  var assignHtml=avail.length?'<div class="assign-sect"><select class="asel" data-action="assignnow" data-post-id="'+p.id+'"><option value="">Post here now…</option>'+avail.map(function(u){return'<option value="'+u.id+'">'+u.callsign+(u.name?' – '+u.name:'')+'</option>'}).join('')+'</select><select class="asel" data-action="assignnext" data-post-id="'+p.id+'"><option value="">Set as planned…</option>'+avail.map(function(u){return'<option value="'+u.id+'">'+u.callsign+(u.name?' – '+u.name:'')+'</option>'}).join('')+'</select></div>':'';
+  return '<div class="pc pb-'+color+'"><div class="pc-hdr ph-'+color+'" draggable="true"><span class="pc-title">'+p.name+'</span><button class="ibtn" data-action="removepost" data-pid="'+p.id+'" style="font-size:11px">🗑</button></div><div class="pc-body">'+plannedHtml+unitsHtml+empty+'</div>'+assignHtml+'</div>';
+}
+
+function renderUnitInPostHtml(u){
+  var sm=getUSM(u.status);
+  var ps=u.postingStatus;
+  var callSt=u.callStatus?S.callStatuses.find(function(s){return s.k===u.callStatus}):null;
+
+  // Determine display status: planned, posted, or call status
+  // Only show ps-row if no call status active
+  var psRow='';
+  if(ps!=='oncall'){
+    var btnPlanned='<button class="ps-btn'+(ps==='planned'?' on-planned':((!ps)?' needs-glow':''))+'" data-action="setps" data-uid="'+u.id+'" data-ps="planned">Planned</button>';
+    var btnPosted='<button class="ps-btn'+(ps==='posted'?' on-posted':((!ps)?' needs-glow':''))+'" data-action="setps" data-uid="'+u.id+'" data-ps="posted">Posted</button>';
+    psRow='<div class="ps-row">'+btnPlanned+btnPosted+'</div>';
+  }
+
+  // Next post reminder (only if different post)
+  var nextTag='';
+  if(u.nextPostId&&u.nextPostId!==u.postId){var np=gp(u.nextPostId);if(np){var canC=!u.callStatus;nextTag='<div class="next-tag">→ Planned: '+np.name+(canC?'<br><button class="ntc" data-action="confirmnext" data-uid="'+u.id+'">Confirm</button>':'')+'</div>'}}
+
+  // Call section (only when postingStatus is posted or oncall)
+  var callHtml='';
+  if(ps==='posted'||ps==='oncall'){
+    var callBtns=S.callStatuses.map(function(s){var isA=u.callStatus===s.k;var style=isA?'background:'+hexRgba(s.color,.18)+';color:'+s.color+';border-color:'+s.color+';font-size:11px;padding:3px 7px;':'';return'<button class="cb'+(isA?' active':'')+'" style="'+style+'" data-action="setcs" data-uid="'+u.id+'" data-cs="'+s.k+'">'+s.l+'</button>'}).join('');
+    var clearBtn=u.callStatus?'<button class="cb clearcall" data-action="setcs" data-uid="'+u.id+'" data-cs="clearcall">✓ Clear</button>':'';
+    var tsStack='';if(u.callTsStack&&u.callTsStack.length){tsStack='<div class="call-ts-stack">'+u.callTsStack.map(function(ts,i){var isL=i===u.callTsStack.length-1;return'<span class="'+(isL?'latest':'')+'">'+ts.time+' '+ts.l+'</span>'}).join('')+'</div>'}
+    callHtml='<div class="call-sect"><div class="call-lbl">Call</div><div class="call-btns">'+callBtns+clearBtn+'</div>'+tsStack+'</div>';
+  }
+
+  return '<div class="pu"><div class="pu-top"><span class="dot '+sm.dc+'"></span><span class="pu-cs">'+u.callsign+'</span>'+(callSt?'<span class="pu-badge" style="background:'+hexRgba(callSt.color,.18)+';color:'+callSt.color+'">'+callSt.l+'</span>':(ps?'<span class="pu-badge '+(ps==='posted'?'s-posted':ps==='planned'?'':'')+'">'+((ps==='posted'?'Posted':ps==='planned'?'Planned':''))+'</span>':''))+'<button class="xbtn" data-action="unassign" data-uid="'+u.id+'">✕</button></div>'+psRow+nextTag+callHtml+'</div>';
+}
+
+function hexRgba(hex,a){try{var r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);return'rgba('+r+','+g+','+b+','+a+')'}catch(e){return'rgba(100,130,255,'+a+')'}}
+
+// ── UNITS TAB ──────────────────────────────────────────
+function renderUnitsTab(){
+  var el=document.getElementById('unitsTabGrid');
+  var units=orderedUnits();
+  if(!units.length){el.innerHTML='<div style="font-size:12px;color:var(--text3);padding:20px">No units yet. Add them in Setup.</div>';return}
+  el.innerHTML=units.map(function(u){
+    var sm=getUSM(u.status);
+    var post=u.postId?gp(u.postId):null;
+    var lastPost=u.postHistory&&u.postHistory.length?u.postHistory[u.postHistory.length-1]:null;
+    var callSt=u.callStatus?S.callStatuses.find(function(s){return s.k===u.callStatus}):null;
+    var locLine=post?'<div class="utc-loc">📍 '+post.name+'</div>':(lastPost?'<div class="utc-loc" style="color:var(--text3)">Last: '+lastPost.postName+'</div>':'<div class="utc-loc" style="color:var(--text3)">No post</div>');
+    var statusLabel=callSt?callSt.l:(u.postingStatus==='posted'?'Posted':u.postingStatus==='planned'?'Planned':sm.l);
+    var statusColor=callSt?callSt.color:(u.postingStatus==='posted'?'var(--accent)':u.postingStatus==='planned'?'var(--amber)':'');
+    var statusBg=callSt?hexRgba(callSt.color,.15):(u.postingStatus==='posted'?'rgba(106,163,255,.15)':u.postingStatus==='planned'?'rgba(255,176,32,.13)':'');
+    var ts='';if(u.statusAt){var mins=Math.floor((Date.now()-u.statusAt)/60000);ts='<div class="utc-ts">'+statusLabel+' · '+mins+'m'+(u.postedAt?' (since '+u.postedAt+')':'')+'</div>'}
+    var nxt=u.nextPostId?(function(){var np=gp(u.nextPostId);return np?'<div class="utc-next">→ Planned: '+np.name+'</div>':''})():'';
+    var brk='';if((u.status==='break'||u.status==='training')&&u.breakEnd){var diff=u.breakEnd-Date.now();var abs=Math.abs(diff);var bm=Math.floor(abs/60000);var bs=Math.floor((abs%60000)/1000);var cls=diff>300000?'ok':diff>0?'warn':'over';var flash=diff<=0?' flashing':'';brk='<div class="break-timer '+cls+flash+'">'+(diff>0?'':'-')+bm+'m'+String(bs).padStart(2,'0')+'s</div>'}
+    var isAvail=u.status==='available'&&!u.postId;
+    return '<div class="utc'+(isAvail?' avail-hi':'')+'"><div class="utc-cs">'+u.callsign+(u.name?' <span style="font-size:11px;color:var(--text2);font-family:sans-serif;font-weight:400">'+u.name+'</span>':'')+'</div><div class="utc-status" style="background:'+(statusBg||'rgba(100,110,140,.15)')+';color:'+(statusColor||'var(--text2)')+'">'+statusLabel+'</div>'+locLine+ts+nxt+brk+'</div>';
+  }).join('');
+}
+
+// ── SETUP ──────────────────────────────────────────────
+function renderSetup(){
+  // Units
+  var ul=document.getElementById('s-unitList');if(ul)ul.innerHTML=orderedUnits().map(function(u){var sm=getUSM(u.status);return'<div class="si" draggable="true" data-drag-type="unit" data-id="'+u.id+'"><span class="si-handle">⠿</span><span class="dot '+sm.dc+'"></span><span class="si-name">'+u.callsign+(u.name?' — '+u.name:'')+'</span><span class="si-meta">'+sm.l+'</span><button class="ibtn" data-action="removeunit" data-uid="'+u.id+'">🗑</button></div>'}).join('')||'<div style="font-size:11px;color:var(--text3);padding:4px">None</div>';
+  // Posts
+  var orows=orderedRows();
+  var pl=document.getElementById('s-postList');
+  if(pl)pl.innerHTML=orderedPosts().map(function(p){var row=p.rowId?gr(p.rowId):null;var c=row?row.color:'gray';var slotIdx=Object.keys(S.gridSlots||{}).find(function(k){return S.gridSlots[k]===p.id});return'<div class="si" draggable="true" data-drag-type="post" data-id="'+p.id+'" data-post-id="'+p.id+'">'+'<span class="si-handle">⠿</span><span class="dot" style="background:var(--'+colorVar(c)+')"></span><span class="si-name">'+p.name+'</span><span class="si-meta">'+(row?row.label:'unassigned')+(slotIdx!==undefined?' · slot '+(parseInt(slotIdx)+1):'')+'</span>'+'<select style="font-size:10px;background:var(--bg3);border:1px solid var(--border);color:var(--text2);border-radius:3px;padding:2px 4px" data-action="setpostrow" data-pid="'+p.id+'"><option value="">No row</option>'+orows.map(function(r){return'<option value="'+r.id+'"'+(p.rowId===r.id?' selected':'')+'>'+r.label+'</option>'}).join('')+'</select>'+'<button class="ibtn" data-action="addtogrid" data-post-id="'+p.id+'" title="Add to first empty grid slot">⊕</button>'+'<button class="ibtn" data-action="removepost" data-pid="'+p.id+'">🗑</button></div>'}).join('')||'<div style="font-size:11px;color:var(--text3);padding:4px">None</div>';
+  // Row selector
+  var sel=document.getElementById('s-prowid');if(sel){sel.innerHTML='<option value="">No row</option>'+orows.map(function(r){return'<option value="'+r.id+'">'+r.label+'</option>'}).join('')}
+  // Rows
+  var rl=document.getElementById('s-rowList');if(rl)rl.innerHTML=orows.map(function(r){return'<div class="si" draggable="true" data-drag-type="row" data-id="'+r.id+'"><span class="si-handle">⠿</span><span class="dot" style="background:var(--'+colorVar(r.color)+')"></span><span class="si-name">'+r.label+'</span><span class="si-meta">'+r.color+'</span><button class="ibtn" data-action="editrow" data-row-id="'+r.id+'">✎</button><button class="ibtn" data-action="removerow" data-row-id="'+r.id+'">🗑</button></div>'}).join('')||'<div style="font-size:11px;color:var(--text3);padding:4px">None</div>';
+  // Statuses
+  var sl=document.getElementById('s-statusList');if(sl)sl.innerHTML=(S.callStatuses||[]).map(function(s,i){return'<div class="si"><span class="dot" style="background:'+s.color+'"></span><span class="si-name">'+s.l+'</span><input type="color" value="'+s.color+'" style="width:28px;height:20px;border:none;background:transparent;cursor:pointer" data-action="setstcolor" data-idx="'+i+'"><button class="ibtn" data-action="removestatus" data-idx="'+i+'">🗑</button></div>'}).join('')||'<div style="font-size:11px;color:var(--text3);padding:4px">None</div>';
+  // Resources
+  var rsl=document.getElementById('s-resList');if(rsl)rsl.innerHTML=orderedResources().map(function(r){return'<div class="si" draggable="true" data-drag-type="resource" data-id="'+r.id+'"><span class="si-handle">⠿</span><span class="si-name">'+r.name+'</span><span class="si-meta">'+r.home+'</span><button class="ibtn" data-action="removeres" data-rid="'+r.id+'">🗑</button></div>'}).join('')||'<div style="font-size:11px;color:var(--text3);padding:4px">None</div>';
+  var en=document.getElementById('s-evName');if(en&&!en.value)en.value=S.event.name||'';
+  var ed=document.getElementById('s-evDate');if(ed&&!ed.value)ed.value=S.event.date||'';
+  attachSetupDrag();
+}
+
+// Setup drag — robust reorder
+function attachSetupDrag(){
+  var items=document.querySelectorAll('.si[draggable]');
+  var dragSrc=null;
+  items.forEach(function(el){
+    el.addEventListener('dragstart',function(e){dragSrc=el;e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',el.dataset.id||'');setTimeout(function(){el.style.opacity='.4'},0)});
+    el.addEventListener('dragend',function(){el.style.opacity='1';dragSrc=null;document.querySelectorAll('.si.drag-over-si').forEach(function(x){x.classList.remove('drag-over-si')})});
+    el.addEventListener('dragenter',function(e){e.preventDefault();if(dragSrc&&dragSrc!==el&&el.dataset.dragType===dragSrc.dataset.dragType)el.classList.add('drag-over-si')});
+    el.addEventListener('dragleave',function(){el.classList.remove('drag-over-si')});
+    el.addEventListener('dragover',function(e){e.preventDefault()});
+    el.addEventListener('drop',function(e){
+      e.preventDefault();e.stopPropagation();el.classList.remove('drag-over-si');
+      if(!dragSrc||dragSrc===el)return;
+      var type=el.dataset.dragType;if(type!==dragSrc.dataset.dragType)return;
+      var keyMap={unit:'unitOrder',post:'postOrder',resource:'resourceOrder',row:'rowOrder'};
+      var key=keyMap[type];if(!key)return;
+      var srcId=dragSrc.dataset.id;var tgtId=el.dataset.id;
+      var order=S[key]?S[key].slice():(type==='unit'?S.units:type==='post'?S.posts:type==='resource'?S.resources:S.rows).map(function(x){return x.id});
+      var from=order.indexOf(srcId);var to=order.indexOf(tgtId);
+      if(from===-1)return;if(to===-1)return;
+      order.splice(from,1);order.splice(to,0,srcId);
+      S[key]=order;save();renderSetup();if(type==='post'||type==='row')renderBoard();
+    });
+  });
+  // Post drag to grid slot
+  document.querySelectorAll('.si[data-post-id]').forEach(function(el){
+    el.addEventListener('dragstart',function(e){boardDragPostId=el.dataset.postId;e.dataTransfer.effectAllowed='copy'});
   });
 }
 
+// ── RESOURCES ──────────────────────────────────────────
+function renderResources(){var el=document.getElementById('resPanel');if(!S.resources.length){el.innerHTML='<div style="font-size:10px;color:var(--text3);padding:10px;text-align:center">Add in Setup</div>';return}el.innerHTML=orderedResources().map(function(r){var isHome=r.status==='home';var isUnk=r.status==='unknown';var dc=isHome?'home':isUnk?'unknown':'away';var sl=isHome?'At home':isUnk?'Unknown':(r.currentLoc||'Deployed');return'<div class="res-card"><div class="res-name">'+r.name+'</div><div class="res-home">🏠 '+r.home+'</div><div class="res-status"><span class="rdot '+dc+'"></span>'+sl+'</div><div class="res-btns">'+(isHome?'<button class="rbtn" data-action="deployres" data-rid="'+r.id+'">Deploy</button><button class="rbtn" data-action="deployresunk" data-rid="'+r.id+'">(?)</button>':'<button class="rbtn" data-action="returnres" data-rid="'+r.id+'">Return</button>')+'</div></div>'}).join('')}
 
-// ══════════════════════════════════════════════════════════════
-// HELPERS
-// ══════════════════════════════════════════════════════════════
+// ── LOG ────────────────────────────────────────────────
+function renderLog(){document.getElementById('logList').innerHTML=(S.log||[]).map(function(l){return'<div style="display:flex;gap:7px;padding:4px 0;border-bottom:1px solid var(--border);font-size:11px"><span style="font-family:var(--mono);color:var(--text3);font-size:9px;flex-shrink:0;padding-top:1px">'+l.time+'</span><span style="color:'+(LC[l.type]||'var(--text2)')+'">'+l.msg+'</span></div>'}).join('')}
 
-// Reads a column from Config, skipping the header row
-function getConfigList(data, colIndex) {
-  const results = [];
-  for (let i = 1; i < data.length; i++) {
-    const val = String(data[i][colIndex]).trim();
-    if (val !== "" && val !== "undefined") results.push(val);
+// ── TABS ───────────────────────────────────────────────
+function showTab(v){document.querySelectorAll('.view').forEach(function(el){el.classList.remove('on')});document.getElementById('view-'+v).classList.add('on');document.querySelectorAll('.tab').forEach(function(b){b.classList.remove('on')});document.querySelector('[data-tab="'+v+'"]').classList.add('on');if(v==='setup')renderSetup();else if(v==='log')renderLog();else if(v==='units')renderUnitsTab();else if(v==='board')renderBoard()}
+
+// ── ORDER ──────────────────────────────────────────────
+function ordered(arr,key){var order=S[key]||[];return arr.slice().sort(function(a,b){var ai=order.indexOf(a.id),bi=order.indexOf(b.id);return(ai===-1?9999:ai)-(bi===-1?9999:bi)})}
+function orderedUnits(){return ordered(S.units,'unitOrder')}
+function orderedPosts(){return ordered(S.posts,'postOrder')}
+function orderedResources(){return ordered(S.resources,'resourceOrder')}
+function orderedRows(){return ordered(S.rows||[],'rowOrder')}
+
+// ── MODALS ─────────────────────────────────────────────
+function openModal(type,arg){
+  var title=document.getElementById('mTitle');var body=document.getElementById('mBody');var foot=document.getElementById('mFoot');foot.innerHTML='';
+  if(type==='addUnit'){title.textContent='Add unit';body.innerHTML='<div class="fr"><div class="fg"><label class="fl">Callsign</label><input class="fi" id="m-cs" placeholder="MED-1"></div><div class="fg"><label class="fl">Name</label><input class="fi" id="m-uname" placeholder="Optional"></div></div>';foot.appendChild(mkBtn('Cancel',false,closeModal));foot.appendChild(mkBtn('Add',true,function(){var cs=document.getElementById('m-cs').value.trim();if(!cs)return;var name=document.getElementById('m-uname').value.trim();var id=mkid();S.units.push({id:id,callsign:cs,name:name,status:'available',postId:null,statusAt:Date.now(),postHistory:[],nextPostId:null,callStatus:null,callStatusAt:null,callTsStack:[],breakEnd:null,postingStatus:null,postedAt:null});S.unitOrder=S.unitOrder||[];S.unitOrder.push(id);addLog('Unit added: '+cs);save();renderAll();closeModal()}))}
+  else if(type==='editrow'){var row=gr(arg);if(!row)return;title.textContent='Edit row';body.innerHTML='<div class="fg"><label class="fl">Label</label><input class="fi" id="m-erl" value="'+row.label+'"></div><div class="fg"><label class="fl">Color</label><select class="fi" id="m-erc">'+COLORS.map(function(c){return'<option value="'+c+'"'+(c===row.color?' selected':'')+'>'+c.charAt(0).toUpperCase()+c.slice(1)+'</option>'}).join('')+'</select></div>';foot.appendChild(mkBtn('Cancel',false,closeModal));foot.appendChild(mkBtn('Save',true,function(){row.label=document.getElementById('m-erl').value.trim()||row.label;row.color=document.getElementById('m-erc').value;save();renderAll();closeModal()}))}
+  else if(type==='breakunit'){var u=gu(arg);if(!u)return;var selType='break';title.textContent='Break/Training — '+u.callsign;body.innerHTML='<div class="fg"><label class="fl">Type</label><div style="display:flex;gap:5px;margin-bottom:4px"><button class="btn primary" id="btype-b">Break</button><button class="btn" id="btype-t">Training</button></div></div><div class="fg"><label class="fl">End time</label><input class="fi" type="time" id="m-be" value="'+getNextHalf()+'"></div>';document.getElementById('btype-b').addEventListener('click',function(){selType='break';document.getElementById('btype-b').className='btn primary';document.getElementById('btype-t').className='btn'});document.getElementById('btype-t').addEventListener('click',function(){selType='training';document.getElementById('btype-t').className='btn primary';document.getElementById('btype-b').className='btn'});foot.appendChild(mkBtn('Cancel',false,closeModal));foot.appendChild(mkBtn('Start',true,function(){startBreak(arg,selType,parseTimeToMs(document.getElementById('m-be').value));closeModal()}))}
+  else if(type==='deployres'){var res=S.resources.find(function(r){return r.id===arg});if(!res)return;title.textContent='Deploy — '+res.name;body.innerHTML='<div class="fg"><label class="fl">Location (blank = unknown)</label><input class="fi" id="m-resloc" placeholder="e.g. Main Stage pit"></div>';foot.appendChild(mkBtn('Cancel',false,closeModal));foot.appendChild(mkBtn('Deploy',true,function(){var loc=document.getElementById('m-resloc').value.trim();res.status=loc?'away':'unknown';res.currentLoc=loc||'?';addLog('Resource deployed: '+res.name);save();renderResources();closeModal()}))}
+  else if(type==='confirmreset'){title.textContent='Reset board';body.innerHTML='<p style="color:var(--text2);font-size:12px;line-height:1.6">Clear all assignments and statuses? Posts, units, and resources stay.</p>';foot.appendChild(mkBtn('Cancel',false,closeModal));foot.appendChild(mkBtn('Yes, reset',true,function(){bigReset();closeModal()}))}
+  document.getElementById('overlay').classList.add('on');
+}
+function mkBtn(label,primary,fn){var b=document.createElement('button');b.textContent=label;b.className='btn'+(primary?' primary':'');b.addEventListener('click',fn);return b}
+function closeModal(){document.getElementById('overlay').classList.remove('on')}
+
+// ── EVENT DELEGATION ───────────────────────────────────
+document.addEventListener('click',function(e){
+  if(e.target===document.getElementById('overlay')){closeModal();return}
+  var t=e.target.closest('[data-action]');if(!t)return;
+  var a=t.dataset.action;
+  if(a==='setps')setPostingStatus(t.dataset.uid,t.dataset.ps);
+  else if(a==='setcs')setCallStatus(t.dataset.uid,t.dataset.cs);
+  else if(a==='unassign'){snapshot();var u=gu(t.dataset.uid);if(u){var p=u.postId?gp(u.postId):null;if(p)p.unitIds=(p.unitIds||[]).filter(function(i){return i!==u.id});u.postId=null;u.postingStatus=null;if(u.status==='posted')u.status='available';u.statusAt=Date.now();addLog(u.callsign+' removed from post','move');save();renderAll()}}
+  else if(a==='removepost')removePost(t.dataset.pid);
+  else if(a==='removeunit')removeUnit(t.dataset.uid);
+  else if(a==='removeres')removeResource(t.dataset.rid);
+  else if(a==='openbreak')openModal('breakunit',t.dataset.uid);
+  else if(a==='resetunit')resetUnit(t.dataset.uid);
+  else if(a==='confirmnext')confirmNextPost(t.dataset.uid);
+  else if(a==='editrow')openModal('editrow',t.dataset.rowId);
+  else if(a==='removerow')removeRow(t.dataset.rowId);
+  else if(a==='removestatus'){var idx=parseInt(t.dataset.idx);S.callStatuses.splice(idx,1);save();renderSetup()}
+  else if(a==='deployres')openModal('deployres',t.dataset.rid);
+  else if(a==='deployresunk'){var res=S.resources.find(function(r){return r.id===t.dataset.rid});if(res){res.status='unknown';res.currentLoc='?';addLog('Resource deployed (?): '+res.name);save();renderResources()}}
+  else if(a==='returnres'){var res=S.resources.find(function(r){return r.id===t.dataset.rid});if(res){res.status='home';res.currentLoc=res.home;addLog('Resource returned: '+res.name);save();renderResources()}}
+  else if(a==='addtogrid'){
+    // Add post to first empty grid slot
+    var pid=t.dataset.postId;S.gridSlots=S.gridSlots||{};
+    for(var i=0;i<GRID_SIZE;i++){if(!S.gridSlots[i]){S.gridSlots[i]=pid;save();renderBoard();renderSetup();break}}
   }
-  return results;
-}
+});
 
+document.addEventListener('change',function(e){
+  var a=e.target.dataset.action;
+  if(a==='assignnow'){var uid=e.target.value;var pid=e.target.dataset.postId;if(uid&&pid){assignNow(uid,pid);e.target.value=''}}
+  else if(a==='assignnext'){var uid=e.target.value;var pid=e.target.dataset.postId;if(uid&&pid){setNextPost(uid,pid);e.target.value=''}}
+  else if(a==='setstcolor'){var idx=parseInt(e.target.dataset.idx);if(S.callStatuses[idx])S.callStatuses[idx].color=e.target.value;save();renderBoard();renderSidebar()}
+  else if(a==='setpostrow'){
+    snapshot();var pid=e.target.dataset.pid;var rowId=e.target.value||null;var p=gp(pid);if(!p)return;
+    (S.rows||[]).forEach(function(r){r.postIds=(r.postIds||[]).filter(function(i){return i!==pid})});
+    p.rowId=rowId;if(rowId){var row=gr(rowId);if(row){row.postIds=row.postIds||[];if(row.postIds.indexOf(pid)===-1)row.postIds.push(pid)}}
+    save();renderAll();
+  }
+});
 
-// Reads the four stored row numbers from the hidden _meta sheet
-function getMeta(ss) {
-  const meta = ss.getSheetByName("_meta");
-  if (!meta) return null;
-  const vals = meta.getRange(1, 1, 4, 2).getValues();
-  return {
-    S1_DATA: vals[0][1],
-    S1_LAST: vals[1][1],
-    S2_DATA: vals[2][1],
-    S2_LAST: vals[3][1],
-  };
-}
+document.querySelectorAll('.tab').forEach(function(b){b.addEventListener('click',function(){showTab(b.dataset.tab)})});
+document.getElementById('eventChip').addEventListener('click',function(){showTab('setup')});
+document.getElementById('btnAddUnitTop').addEventListener('click',function(){openModal('addUnit')});
+document.getElementById('btnBreakUnit').addEventListener('click',function(){if(S.units.length)openModal('breakunit',orderedUnits()[0].id)});
+document.getElementById('btnAddUnitSetup').addEventListener('click',addUnit);
+document.getElementById('btnAddPostSetup').addEventListener('click',addPost);
+document.getElementById('btnAddResource').addEventListener('click',addResource);
+document.getElementById('btnAddRowSetup').addEventListener('click',function(){var label=document.getElementById('s-rowlabel').value.trim()||'Row';var color=document.getElementById('s-rowcolor').value;addRow(label,color);document.getElementById('s-rowlabel').value='';renderSetup()});
+document.getElementById('btnAddStatus').addEventListener('click',function(){var name=document.getElementById('s-newstatus').value.trim();if(!name)return;S.callStatuses=S.callStatuses||[];S.callStatuses.push({k:name.toLowerCase().replace(/\s+/g,'_'),l:name,color:'#8b90a8'});document.getElementById('s-newstatus').value='';save();renderSetup()});
+document.getElementById('btnSaveEvent').addEventListener('click',function(){S.event.name=document.getElementById('s-evName').value.trim();S.event.date=document.getElementById('s-evDate').value;if(S.event.name)document.getElementById('eventChip').textContent='⚡ '+S.event.name;addLog('Event: '+S.event.name);save()});
+document.getElementById('btnUndo').addEventListener('click',undo);
+document.getElementById('btnRedo').addEventListener('click',redo);
+document.getElementById('btnReset').addEventListener('click',function(){openModal('confirmreset')});
 
-
-// Builds the Config sheet the first time only
-function setupConfig(sheet) {
-  sheet.getRange(1, 1).setValue("POSTS").setFontWeight("bold");
-  sheet.getRange(1, 2).setValue("UNITS").setFontWeight("bold");
-  sheet.getRange(1, 3).setValue("STATUSES").setFontWeight("bold");
-
-  const posts = [
-    "Main Stage",
-    "North Gate",
-    "South Gate",
-    "Medical Tent",
-    "VIP Area",
-    "Parking Lot A",
-    "Artist Village",
-    "West Perimeter",
-    "Command Post",
-  ];
-  const units = [
-    "U-01",
-    "U-02",
-    "U-03",
-    "U-04",
-    "U-05",
-    "U-06",
-    "U-07",
-  ];
-  const statuses = [
-    "10-8",
-    "10-6",
-    "10-7",
-    "10-97",
-    "10-4",
-  ];
-
-  sheet.getRange(2, 1, posts.length,    1).setValues(posts.map(p => [p]));
-  sheet.getRange(2, 2, units.length,    1).setValues(units.map(u => [u]));
-  sheet.getRange(2, 3, statuses.length, 1).setValues(statuses.map(s => [s]));
-}
+// ── INIT ───────────────────────────────────────────────
+(async function(){
+  setSS('busy');await pull();
+  if(!S.callStatuses||!S.callStatuses.length)S.callStatuses=JSON.parse(JSON.stringify(DEFAULT_STATUSES));
+  if(!S.rows)S.rows=[];if(!S.gridSlots)S.gridSlots={};
+  if(!S.unitOrder)S.unitOrder=S.units.map(function(u){return u.id});
+  if(!S.postOrder)S.postOrder=S.posts.map(function(p){return p.id});
+  if(!S.resourceOrder)S.resourceOrder=S.resources.map(function(r){return r.id});
+  if(!S.rowOrder)S.rowOrder=(S.rows||[]).map(function(r){return r.id});
+  // Auto-populate grid with any posts not yet assigned to a slot
+  var assignedPostIds=Object.values(S.gridSlots||{});
+  var unslotted=S.posts.filter(function(p){return assignedPostIds.indexOf(p.id)===-1});
+  if(unslotted.length){
+    for(var i=0;i<GRID_SIZE&&unslotted.length>0;i++){
+      if(!S.gridSlots[i]){S.gridSlots[i]=unslotted.shift().id}
+    }
+    save();
+  }
+  renderAll();
+})();
+</script>
+</body>
+</html>
