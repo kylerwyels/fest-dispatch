@@ -72,13 +72,31 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .break-timer.over{color:var(--red);border-color:rgba(255,80,80,.4);background:rgba(255,80,80,.07)}
 @keyframes flash{0%,100%{opacity:1}50%{opacity:.2}}.flashing{animation:flash .7s infinite}
 
-/* INACTIVE TRAY */
-.inactive-tray{background:var(--bg2);border-bottom:2px solid var(--border2);padding:6px 10px;flex-shrink:0;max-height:120px;overflow-y:auto}
-.inactive-tray-hdr{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin-bottom:5px}
-.inactive-chips{display:flex;flex-wrap:wrap;gap:4px}
-.ichip{background:var(--bg3);border:1px solid var(--border2);border-radius:5px;padding:4px 8px;font-size:11px}
+/* INACTIVE TRAY - always visible */
+.inactive-tray{background:var(--bg2);border-bottom:2px solid var(--border2);padding:5px 10px;flex-shrink:0;display:flex;gap:10px;align-items:flex-start;min-height:48px}
+.inactive-tray-section{display:flex;flex-direction:column;min-width:80px}
+.inactive-tray-lbl{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin-bottom:3px}
+.inactive-chips{display:flex;flex-wrap:wrap;gap:3px}
+.inactive-chips-empty{font-size:10px;color:var(--text3);font-style:italic;padding:2px 0}
+.inactive-tray-divider{width:1px;background:var(--border2);align-self:stretch;flex-shrink:0;margin:0 2px}
+.ichip{background:var(--bg3);border:1px solid var(--border2);border-radius:5px;padding:3px 7px;font-size:11px}
 .ichip-top{display:flex;align-items:center;gap:4px;margin-bottom:2px}
 .ichip-cs{font-family:var(--mono);font-weight:700;font-size:11px;flex:1}
+
+/* ACTIVITY IN TRAY */
+.tray-activity{width:200px;flex-shrink:0;display:flex;flex-direction:column;margin-left:auto}
+.tray-activity-hdr{font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin-bottom:3px;display:flex;align-items:center;justify-content:space-between}
+.tray-act-item{font-size:9px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.6}
+.tray-act-item .t{color:var(--text3);font-family:var(--mono);font-size:9px;margin-right:3px}
+.tray-expand-btn{font-size:9px;color:var(--accent);cursor:pointer}
+.tray-expand-btn:hover{color:var(--text)}
+
+/* ACTIVITY FULL PANEL */
+.activity-panel{position:fixed;top:50px;right:8px;width:300px;background:var(--bg2);border:1px solid var(--border2);border-radius:8px;box-shadow:0 8px 32px rgba(0,0,0,.7);z-index:500;max-height:400px;overflow:hidden;display:flex;flex-direction:column}
+.activity-panel-hdr{padding:8px 12px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
+.activity-panel-scroll{overflow-y:auto;flex:1;padding:6px 10px}
+.ap-item{display:flex;gap:7px;padding:4px 0;border-bottom:1px solid var(--border);font-size:11px}
+.ap-time{font-family:var(--mono);font-size:10px;color:var(--text3);flex-shrink:0;padding-top:1px}
 
 /* VIEWS */
 .view{display:none;flex:1;overflow:hidden;flex-direction:column}
@@ -249,17 +267,6 @@ select.fi option{background:var(--bg3)}
   <button class="btn sm" id="btnRedo">↪ Redo</button>
   <button class="btn sm danger" id="btnReset">⟳ Reset</button>
   <div class="topbar-right">
-    <!-- ACTIVITY CORNER -->
-    <div class="activity-corner" id="activityCorner">
-      <div class="activity-collapsed" id="activityCollapsed">
-        <div id="activityMini"></div>
-        <div class="activity-expand-btn" id="activityExpandBtn">▾ show more</div>
-      </div>
-      <div class="activity-panel" id="activityPanel" style="display:none">
-        <div class="activity-panel-hdr">Activity <button class="ibtn" id="activityCloseBtn" style="font-size:11px">✕</button></div>
-        <div class="activity-panel-scroll" id="activityFull"></div>
-      </div>
-    </div>
     <span class="sync-dot" id="syncDot"></span>
     <span class="clock" id="clock">--:--:--</span>
   </div>
@@ -282,10 +289,24 @@ select.fi option{background:var(--bg3)}
 <!-- BOARD VIEW -->
 <div class="view on" id="view-board">
   <div class="board-outer">
-    <div id="inactiveTray" style="display:none">
-      <div class="inactive-tray">
-        <div class="inactive-tray-hdr">Break / Training / Out of Service</div>
-        <div class="inactive-chips" id="inactiveChips"></div>
+    <!-- ALWAYS-VISIBLE TRAY -->
+    <div class="inactive-tray" id="inactiveTray">
+      <div class="inactive-tray-section">
+        <div class="inactive-tray-lbl">On Break</div>
+        <div class="inactive-chips" id="breakChips"><div class="inactive-chips-empty">—</div></div>
+      </div>
+      <div class="inactive-tray-divider"></div>
+      <div class="inactive-tray-section">
+        <div class="inactive-tray-lbl">Out of Service</div>
+        <div class="inactive-chips" id="oosChips"><div class="inactive-chips-empty">—</div></div>
+      </div>
+      <div class="inactive-tray-divider"></div>
+      <div class="tray-activity">
+        <div class="tray-activity-hdr">
+          <span>Activity</span>
+          <span class="tray-expand-btn" id="trayExpandBtn">▾ expand</span>
+        </div>
+        <div id="trayActivityItems"></div>
       </div>
     </div>
     <div class="board-scroll">
@@ -453,18 +474,13 @@ function addLog(msg,type){type=type||'info';var t=nowts();S.log.unshift({time:t,
 
 function renderActivity(){
   var log=S.log||[];
-  // Mini (collapsed)
-  var mini=document.getElementById('activityMini');
-  if(mini)mini.innerHTML=log.slice(0,5).map(function(l){return'<div class="activity-mini-item"><span class="t">'+l.time+'</span><span style="color:'+(LC[l.type]||'var(--text2)')+'">'+l.msg+'</span></div>'}).join('');
+  // Tray mini items (5)
+  var trayEl=document.getElementById('trayActivityItems');
+  if(trayEl)trayEl.innerHTML=log.slice(0,5).map(function(l){return'<div class="tray-act-item"><span class="t">'+l.time+'</span><span style="color:'+(LC[l.type]||'var(--text2)')+'">'+l.msg+'</span></div>'}).join('');
   // Full panel
   var full=document.getElementById('activityFull');
-  if(full)full.innerHTML=log.slice(0,80).map(function(l){return'<div class="ap-item"><span class="ap-time">'+l.time+'</span><span style="color:'+(LC[l.type]||'var(--text2)')+'">'+l.msg+'</span></div>'}).join('');
+  if(full)full.innerHTML=log.slice(0,100).map(function(l){return'<div class="ap-item"><span class="ap-time">'+l.time+'</span><span style="color:'+(LC[l.type]||'var(--text2)')+'">'+l.msg+'</span></div>'}).join('');
 }
-
-// Activity toggle
-document.getElementById('activityExpandBtn').addEventListener('click',function(e){e.stopPropagation();var p=document.getElementById('activityPanel');p.style.display=p.style.display==='none'?'flex':'none'});
-document.getElementById('activityCloseBtn').addEventListener('click',function(e){e.stopPropagation();document.getElementById('activityPanel').style.display='none'});
-document.addEventListener('click',function(e){var p=document.getElementById('activityPanel');if(p.style.display!=='none'&&!document.getElementById('activityCorner').contains(e.target))p.style.display='none'});
 
 // ── UNITS ──────────────────────────────────────────────
 function addUnit(){var cs=document.getElementById('s-cs').value.trim();if(!cs)return;var name=document.getElementById('s-uname').value.trim();var id=mkid();S.units.push({id:id,callsign:cs,name:name,status:'available',postId:null,statusAt:Date.now(),postHistory:[],nextPostId:null,callStatus:null,callStatusAt:null,callTsStack:[],breakEnd:null,postingStatus:null,postedAt:null});S.unitOrder=S.unitOrder||[];S.unitOrder.push(id);document.getElementById('s-cs').value='';document.getElementById('s-uname').value='';addLog('Unit added: '+cs);save();renderAll()}
@@ -543,15 +559,33 @@ function renderSidebar(){
     // Next post
     var nxt='';if(u.nextPostId){var np=gp(u.nextPostId);if(np){var canC=u.status==='available'||!u.postId;nxt='<div class="uc-next"><div class="uc-next-lbl">Planned</div><div class="uc-next-val">'+np.name+'</div>'+(canC?'<button class="btn xs primary" data-action="confirmnext" data-uid="'+u.id+'">→ Confirm</button>':'<span style="font-size:9px;color:var(--text3)">Pending</span>')+'</div>'}}
     var isAvail=u.status==='available'&&!u.postId;
-    return '<div class="uc'+(isAvail?' avail-hi':'')+'"><div class="uc-top"><span class="dot '+sm.dc+'"></span><span class="uc-cs">'+u.callsign+'</span><span class="uc-badge '+sm.bc+'">'+sm.l+'</span></div>'+locLine+callLine+ts+brk+nxt+'<div class="uc-actions"><button class="btn xs" data-action="openbreak" data-uid="'+u.id+'">Break</button><button class="btn xs warnb" data-action="resetunit" data-uid="'+u.id+'">Reset</button><button class="xbtn" data-action="removeunit" data-uid="'+u.id+'">🗑</button></div></div>';
+    return '<div class="uc'+(isAvail?' avail-hi':'')+'"><div class="uc-top"><span class="dot '+sm.dc+'"></span><span class="uc-cs">'+u.callsign+'</span><span class="uc-badge '+sm.bc+'">'+sm.l+'</span></div>'+locLine+callLine+ts+brk+nxt+'<div class="uc-actions"><button class="btn xs" data-action="openbreak" data-uid="'+u.id+'">Break</button><button class="btn xs" data-action="setoos" data-uid="'+u.id+'" style="border-color:rgba(148,163,184,.35);color:var(--text2)">OOS</button><button class="btn xs warnb" data-action="resetunit" data-uid="'+u.id+'">Reset</button><button class="xbtn" data-action="removeunit" data-uid="'+u.id+'">🗑</button></div></div>';
   }).join('');
 }
 
 // ── INACTIVE TRAY ──────────────────────────────────────
 function renderInactiveTray(){
-  var inactive=S.units.filter(isInactive);var tray=document.getElementById('inactiveTray');
-  if(!inactive.length){tray.style.display='none';return}tray.style.display='block';
-  document.getElementById('inactiveChips').innerHTML=inactive.map(function(u){var sm=getUSM(u.status);var brk='';if(u.breakEnd){var diff=u.breakEnd-Date.now();var abs=Math.abs(diff);var bm=Math.floor(abs/60000);var bs=Math.floor((abs%60000)/1000);var cls=diff>300000?'ok':diff>0?'warn':'over';var flash=diff<=0?' flashing':'';brk='<div class="break-timer '+cls+flash+'" style="font-size:10px;padding:2px 5px;margin:2px 0">'+(diff>0?'':'-')+bm+'m'+String(bs).padStart(2,'0')+'s</div>'}return'<div class="ichip"><div class="ichip-top"><span class="dot '+sm.dc+'"></span><span class="ichip-cs">'+u.callsign+'</span><span class="uc-badge '+sm.bc+'" style="font-size:8px">'+sm.l+'</span><button class="btn xs" data-action="resetunit" data-uid="'+u.id+'" style="margin-left:auto">Clear</button></div>'+brk+'</div>'}).join('');
+  var breakUnits=S.units.filter(function(u){return u.status==='break'||u.status==='training'});
+  var oosUnits=S.units.filter(function(u){return u.status==='outofservice'});
+
+  var bEl=document.getElementById('breakChips');
+  if(bEl){
+    if(!breakUnits.length){bEl.innerHTML='<div class="inactive-chips-empty">—</div>'}
+    else{bEl.innerHTML=breakUnits.map(function(u){
+      var sm=getUSM(u.status);var brk='';
+      if(u.breakEnd){var diff=u.breakEnd-Date.now();var abs=Math.abs(diff);var bm=Math.floor(abs/60000);var bs=Math.floor((abs%60000)/1000);var cls=diff>300000?'ok':diff>0?'warn':'over';var flash=diff<=0?' flashing':'';brk='<div class="break-timer '+cls+flash+'" style="font-size:9px;padding:1px 5px;margin:1px 0">'+(diff>0?'':'-')+bm+'m'+String(bs).padStart(2,'0')+'s</div>'}
+      return'<div class="ichip"><div class="ichip-top"><span class="dot '+sm.dc+'"></span><span class="ichip-cs">'+u.callsign+'</span><button class="btn xs" data-action="resetunit" data-uid="'+u.id+'" style="margin-left:2px">Clear</button></div>'+brk+'</div>'
+    }).join('')}
+  }
+
+  var oEl=document.getElementById('oosChips');
+  if(oEl){
+    if(!oosUnits.length){oEl.innerHTML='<div class="inactive-chips-empty">—</div>'}
+    else{oEl.innerHTML=oosUnits.map(function(u){
+      var ts=u.statusAt?new Date(u.statusAt).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:false}):'';
+      return'<div class="ichip"><div class="ichip-top"><span class="dot d0"></span><span class="ichip-cs">'+u.callsign+'</span><button class="btn xs" data-action="resetunit" data-uid="'+u.id+'" style="margin-left:2px">Clear</button></div>'+(ts?'<div style="font-size:9px;color:var(--text3);font-family:var(--mono)">OOS since '+ts+'</div>':'')+'</div>'
+    }).join('')}
+  }
 }
 
 // ── 5x5 GRID BOARD ────────────────────────────────────
@@ -628,8 +662,15 @@ function renderPostCardHtml(p,units,color){
   var plannedHtml=plannedUnits.map(function(u){var isAvail=u.status==='available';return'<div class="pc-planned-reminder'+(isAvail?' hi':'')+'"><span>🔜 '+u.callsign+'</span>'+(isAvail?'<button class="ntc" data-action="confirmnext" data-uid="'+u.id+'">→</button>':'')+'</div>'}).join('');
   var unitsHtml=units.map(function(u){return renderUnitInPostHtml(u)}).join('');
   var empty=units.length?'':'<div class="pc-empty">empty</div>';
-  var avail=S.units.filter(function(u){return!isInactive(u)&&!units.find(function(x){return x.id===u.id})});
-  var assignHtml=avail.length?'<div class="assign-sect"><select class="asel" data-action="assignnow" data-post-id="'+p.id+'"><option value="">Post here now…</option>'+avail.map(function(u){return'<option value="'+u.id+'">'+u.callsign+(u.name?' – '+u.name:'')+'</option>'}).join('')+'</select><select class="asel" data-action="assignnext" data-post-id="'+p.id+'"><option value="">Set as planned…</option>'+avail.map(function(u){return'<option value="'+u.id+'">'+u.callsign+(u.name?' – '+u.name:'')+'</option>'}).join('')+'</select></div>':'';
+  // All units except those already in this post, with status info
+  var allOther=orderedUnits().filter(function(u){return!units.find(function(x){return x.id===u.id})});
+  function unitLabel(u){
+    var callSt=u.callStatus?S.callStatuses.find(function(s){return s.k===u.callStatus}):null;
+    var stLabel=callSt?callSt.l:(u.postingStatus==='posted'?'Posted':u.postingStatus==='planned'?'Planned':getUSM(u.status).l);
+    var locLabel=u.postId?(function(){var pp=gp(u.postId);return pp?' @ '+pp.name:''})():'';
+    return u.callsign+' — '+stLabel+locLabel;
+  }
+  var assignHtml=allOther.length?'<div class="assign-sect"><select class="asel" data-action="assignnow" data-post-id="'+p.id+'"><option value="">Post here now…</option>'+allOther.map(function(u){return'<option value="'+u.id+'">'+unitLabel(u)+'</option>'}).join('')+'</select><select class="asel" data-action="assignnext" data-post-id="'+p.id+'"><option value="">Set as planned…</option>'+allOther.map(function(u){return'<option value="'+u.id+'">'+unitLabel(u)+'</option>'}).join('')+'</select></div>':'';
   return '<div class="pc pb-'+color+'"><div class="pc-hdr ph-'+color+'" draggable="true"><span class="pc-title">'+p.name+'</span><button class="ibtn" data-action="removepost" data-pid="'+p.id+'" style="font-size:11px">🗑</button></div><div class="pc-body">'+plannedHtml+unitsHtml+empty+'</div>'+assignHtml+'</div>';
 }
 
@@ -779,6 +820,7 @@ document.addEventListener('click',function(e){
   else if(a==='removeunit')removeUnit(t.dataset.uid);
   else if(a==='removeres')removeResource(t.dataset.rid);
   else if(a==='openbreak')openModal('breakunit',t.dataset.uid);
+  else if(a==='setoos'){snapshot();var u=gu(t.dataset.uid);if(u){detachUnit(t.dataset.uid);u.status='outofservice';u.statusAt=Date.now();u.breakEnd=null;addLog(u.callsign+' → OOS','warn');save();renderAll();}}
   else if(a==='resetunit')resetUnit(t.dataset.uid);
   else if(a==='confirmnext')confirmNextPost(t.dataset.uid);
   else if(a==='editrow')openModal('editrow',t.dataset.rowId);
@@ -817,8 +859,12 @@ document.getElementById('btnAddResource').addEventListener('click',addResource);
 document.getElementById('btnAddRowSetup').addEventListener('click',function(){var label=document.getElementById('s-rowlabel').value.trim()||'Row';var color=document.getElementById('s-rowcolor').value;addRow(label,color);document.getElementById('s-rowlabel').value='';renderSetup()});
 document.getElementById('btnAddStatus').addEventListener('click',function(){var name=document.getElementById('s-newstatus').value.trim();if(!name)return;S.callStatuses=S.callStatuses||[];S.callStatuses.push({k:name.toLowerCase().replace(/\s+/g,'_'),l:name,color:'#8b90a8'});document.getElementById('s-newstatus').value='';save();renderSetup()});
 document.getElementById('btnSaveEvent').addEventListener('click',function(){S.event.name=document.getElementById('s-evName').value.trim();S.event.date=document.getElementById('s-evDate').value;if(S.event.name)document.getElementById('eventChip').textContent='⚡ '+S.event.name;addLog('Event: '+S.event.name);save()});
-document.getElementById('btnUndo').addEventListener('click',undo);
+// Tray activity expand
+document.getElementById('trayExpandBtn').addEventListener('click',function(e){e.stopPropagation();var p=document.getElementById('activityPanel');p.style.display=p.style.display==='none'?'flex':'none';renderActivity()});
+document.getElementById('activityCloseBtn').addEventListener('click',function(e){e.stopPropagation();document.getElementById('activityPanel').style.display='none'});
+document.addEventListener('click',function(e){var p=document.getElementById('activityPanel');if(p&&p.style.display!=='none'){var trayBtn=document.getElementById('trayExpandBtn');if(!p.contains(e.target)&&e.target!==trayBtn)p.style.display='none'}});
 document.getElementById('btnRedo').addEventListener('click',redo);
+document.getElementById('btnUndo').addEventListener('click',undo);
 document.getElementById('btnReset').addEventListener('click',function(){openModal('confirmreset')});
 
 // ── INIT ───────────────────────────────────────────────
@@ -830,7 +876,14 @@ document.getElementById('btnReset').addEventListener('click',function(){openModa
   if(!S.postOrder)S.postOrder=S.posts.map(function(p){return p.id});
   if(!S.resourceOrder)S.resourceOrder=S.resources.map(function(r){return r.id});
   if(!S.rowOrder)S.rowOrder=(S.rows||[]).map(function(r){return r.id});
-  // Auto-populate grid with any posts not yet assigned to a slot
+  // Add default units 341-345 if none exist
+  if(!S.units.length){
+    ['341','342','343','344','345'].forEach(function(cs){
+      var id=mkid();
+      S.units.push({id:id,callsign:cs,name:'',status:'available',postId:null,statusAt:Date.now(),postHistory:[],nextPostId:null,callStatus:null,callStatusAt:null,callTsStack:[],breakEnd:null,postingStatus:null,postedAt:null});
+      S.unitOrder=S.unitOrder||[];S.unitOrder.push(id);
+    });
+  }
   var assignedPostIds=Object.values(S.gridSlots||{});
   var unslotted=S.posts.filter(function(p){return assignedPostIds.indexOf(p.id)===-1});
   if(unslotted.length){
@@ -842,5 +895,11 @@ document.getElementById('btnReset').addEventListener('click',function(){openModa
   renderAll();
 })();
 </script>
+<!-- ACTIVITY FULL PANEL -->
+<div class="activity-panel" id="activityPanel" style="display:none">
+  <div class="activity-panel-hdr">Full Activity Log <button class="ibtn" id="activityCloseBtn" style="font-size:11px">✕</button></div>
+  <div class="activity-panel-scroll" id="activityFull"></div>
+</div>
+
 </body>
 </html>
