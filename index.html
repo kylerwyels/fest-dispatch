@@ -53,13 +53,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 /* ── UNIT CARDS (sidebar) ── */
 .uc{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:8px 10px;margin-bottom:5px;transition:border-color .2s,box-shadow .2s}
 .uc.avail{border-color:rgba(46,204,128,.4);box-shadow:0 0 0 1px rgba(46,204,128,.1)}
-.uc-top{display:flex;align-items:center;gap:5px;margin-bottom:3px}
+.uc-top{display:flex;align-items:center;gap:5px;margin-bottom:5px}
 .uc-cs{font-family:var(--mono);font-size:13px;font-weight:700;flex:1}
-.uc-badge{font-size:9px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:2px 6px;border-radius:3px;flex-shrink:0}
+.uc-status-big{font-size:13px;font-weight:700;letter-spacing:.02em;padding:3px 10px;border-radius:4px;flex-shrink:0}
 .uc-loc{font-size:10px;color:var(--text2);margin-bottom:2px}
 .uc-ts{font-family:var(--mono);font-size:10px;color:#fff;margin-bottom:3px}
 .uc-planned{font-size:10px;color:var(--accent);background:rgba(106,163,255,.1);border:1px solid rgba(106,163,255,.2);border-radius:3px;padding:2px 6px;margin-bottom:3px;display:flex;align-items:center;justify-content:space-between;gap:4px}
-.uc-actions{display:flex;gap:3px;flex-wrap:wrap;margin-top:4px}
+.uc-notes{width:100%;background:var(--bg4);border:1px solid var(--border);border-radius:3px;color:var(--text2);font-size:10px;padding:3px 6px;resize:none;outline:none;font-family:inherit;line-height:1.4;margin-bottom:3px;min-height:32px}
+.uc-notes:focus{border-color:var(--accent);color:var(--text)}
+.uc-notes::placeholder{color:var(--text3)}
+.uc-actions{display:flex;gap:3px;flex-wrap:wrap;margin-top:2px}
 
 /* break timer */
 .bktimer{font-family:var(--mono);font-size:12px;font-weight:700;padding:3px 7px;border-radius:4px;text-align:center;margin:3px 0;border:1px solid var(--border)}
@@ -114,33 +117,32 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
 /* ── POST CARD ── */
 .pc{width:100%;height:100%;display:flex;flex-direction:column;overflow:hidden}
-.pc-hdr{display:flex;align-items:center;padding:4px 6px;border-bottom:1px solid var(--border);gap:3px;flex-shrink:0;cursor:grab;user-select:none}
+.pc-hdr{display:flex;align-items:center;padding:3px 5px;border-bottom:1px solid var(--border);gap:3px;flex-shrink:0;cursor:grab;user-select:none;min-height:0}
 .pc-hdr:active{cursor:grabbing}
-.pc-name{font-size:10px;font-weight:700;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.pc-body{padding:4px 5px;flex:1;overflow:hidden;min-height:0;display:flex;flex-direction:column;gap:3px}
-.pc-empty-msg{font-size:9px;color:var(--text3);font-style:italic;padding:2px 0}
+.pc-name{font-size:9px;font-weight:700;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.2}
+.pc-body{padding:2px 3px;flex:1;overflow-y:auto;min-height:0;display:flex;flex-direction:column;gap:2px}
+.pc-empty-msg{font-size:8px;color:var(--text3);font-style:italic;padding:2px 0}
 
 /* planned-here reminder */
-.plan-here{background:rgba(106,163,255,.1);border:1px solid rgba(106,163,255,.25);border-radius:3px;padding:2px 5px;font-size:9px;color:var(--accent);display:flex;align-items:center;justify-content:space-between;gap:3px}
+.plan-here{background:rgba(106,163,255,.1);border:1px solid rgba(106,163,255,.25);border-radius:2px;padding:1px 4px;font-size:8px;color:var(--accent);display:flex;align-items:center;justify-content:space-between;gap:2px}
 
 /* ── UNIT IN POST ── */
-.pu{border-radius:4px;padding:3px 5px;border:1px solid rgba(255,255,255,.06);background:rgba(0,0,0,.2);flex-shrink:0}
-.pu-top{display:flex;align-items:center;gap:3px;margin-bottom:3px}
-.pu-cs{font-family:var(--mono);font-size:11px;font-weight:700;flex:1}
-.pu-badge{font-size:8px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:1px 4px;border-radius:2px;flex-shrink:0}
-.status-btns{display:flex;flex-wrap:wrap;gap:2px;margin-bottom:2px}
-.stbtn{padding:2px 5px;border-radius:2px;font-size:9px;cursor:pointer;font-weight:600;border:1px solid var(--border);background:var(--bg3);color:var(--text2);transition:all .1s;white-space:nowrap}
+.pu{border-radius:3px;padding:2px 3px;border:1px solid rgba(255,255,255,.07);background:rgba(0,0,0,.25);flex-shrink:0}
+.pu-top{display:flex;align-items:center;gap:3px;margin-bottom:2px}
+.pu-cs{font-family:var(--mono);font-size:11px;font-weight:700;flex:1;line-height:1}
+.pu-badge{font-size:8px;font-weight:700;padding:1px 4px;border-radius:2px;flex-shrink:0;line-height:1.3}
+.status-btns{display:flex;flex-wrap:wrap;gap:1px;margin-bottom:1px}
+.stbtn{padding:1px 5px;border-radius:2px;font-size:9px;cursor:pointer;font-weight:600;border:1px solid var(--border);background:var(--bg3);color:var(--text2);transition:all .1s;white-space:nowrap;line-height:1.4}
 .stbtn:hover{border-color:var(--border2);color:var(--text)}
 .stbtn.active{font-weight:700}
-.ts-stack{font-family:var(--mono);font-size:8px;color:var(--text3);border-left:2px solid var(--border);padding-left:4px;margin-top:2px;line-height:1.7}
+.ts-stack{font-family:var(--mono);font-size:8px;color:var(--text3);border-left:2px solid var(--border);padding-left:3px;margin-top:1px;line-height:1.5}
 .ts-stack span{display:block}.ts-stack span.latest{color:#fff;font-weight:600}
-.pu-next{font-size:9px;color:var(--accent);margin-top:2px;display:flex;align-items:center;justify-content:space-between}
+.pu-next{font-size:8px;color:var(--accent);margin-top:1px;display:flex;align-items:center;justify-content:space-between}
 
 /* ── ASSIGN ROW ── */
-.pc-assign{border-top:1px solid var(--border);padding:3px 5px;flex-shrink:0}
-.asel{background:var(--bg);border:1px solid var(--border);border-radius:3px;color:var(--text2);font-size:9px;padding:2px 3px;width:100%;outline:none;cursor:pointer;margin-bottom:2px}
-.asel:last-child{margin-bottom:0}
-.asel:focus{border-color:var(--accent)}
+.pc-assign{border-top:1px solid var(--border);padding:2px 3px;flex-shrink:0;display:flex;flex-direction:column;gap:1px}
+.asel{background:var(--bg2);border:1px solid var(--border);border-radius:2px;color:var(--text3);font-size:8px;padding:1px 2px;width:100%;outline:none;cursor:pointer;line-height:1.4;height:16px;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8' viewBox='0 0 8 8'%3E%3Cpath fill='%236870a0' d='M4 5L1 2h6z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 2px center;padding-right:12px}
+.asel:focus{border-color:var(--accent);color:var(--text2)}
 
 /* ── TRANSPORT PANEL ── */
 .rpanel{width:155px;background:var(--bg2);border-left:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0}
@@ -493,7 +495,7 @@ function renderActivity(){
 
 // ── UNITS ──────────────────────────────────────────────
 function mkUnit(cs,name){
-  return{id:mkid(),callsign:cs,name:name||'',status:'available',postId:null,statusAt:Date.now(),callStatus:null,callStatusAt:null,callTsStack:[],nextPostId:null,breakEnd:null,postHistory:[]};
+  return{id:mkid(),callsign:cs,name:name||'',status:'available',postId:null,statusAt:Date.now(),callStatus:null,callStatusAt:null,callTsStack:[],nextPostId:null,breakEnd:null,postHistory:[],notes:''};
 }
 function addUnit(){
   var cs=document.getElementById('s-cs').value.trim();if(!cs)return;
@@ -664,7 +666,9 @@ function renderSidebar(){
     var lastPost=u.postHistory&&u.postHistory.length?u.postHistory[u.postHistory.length-1]:null;
     var locLine=post?'<div class="uc-loc">📍 '+post.name+'</div>':(lastPost?'<div class="uc-loc" style="color:var(--text3)">Last: '+lastPost.postName+'</div>':'');
     var stLabel=sm.l;
-    var stStyle=sm.isCall?'background:'+hexRgba(sm.color,.15)+';color:'+sm.color+';':'';
+    var stStyle=sm.isCall
+      ?'background:'+hexRgba(sm.color,.18)+';color:'+sm.color+';'
+      :'';
     var stClass=sm.isCall?'':'s-'+(u.status||'available');
     var ts='';
     if(u.statusAt){var m=Math.floor((Date.now()-u.statusAt)/60000);ts='<div class="uc-ts">'+stLabel+' · '+m+'m</div>'}
@@ -678,13 +682,14 @@ function renderSidebar(){
     var nxt='';
     if(u.nextPostId){var np=gp(u.nextPostId);if(np){var canC=u.status==='available'||!u.postId;nxt='<div class="uc-planned">→ '+np.name+(canC?'<button class="btn xs primary" data-action="confirmnext" data-uid="'+u.id+'">Go</button>':'<span style="font-size:9px;color:var(--text3)">pending</span>')+'</div>'}}
     var isAvail=u.status==='available'&&!u.postId&&!u.callStatus;
+    var notes=u.notes||'';
     return '<div class="uc'+(isAvail?' avail':'')+'">'+
       '<div class="uc-top">'+
-        '<span class="dot '+(sm.isCall?'':'BASE_SM[u.status]?.dc||')+'dg'+'" style="background:'+(sm.isCall?sm.color:'')+';'+(sm.isCall?'':'')+'"></span>'+
         '<span class="uc-cs">'+u.callsign+'</span>'+
-        '<span class="uc-badge '+stClass+'" style="'+stStyle+'">'+stLabel+'</span>'+
+        '<span class="uc-status-big '+stClass+'" style="'+stStyle+'">'+stLabel+'</span>'+
       '</div>'+
       locLine+ts+brk+nxt+
+      '<textarea class="uc-notes" rows="2" placeholder="Notes…" data-action="unitnote" data-uid="'+u.id+'">'+escHtml(notes)+'</textarea>'+
       '<div class="uc-actions">'+
         '<button class="btn xs" data-action="openbreak" data-uid="'+u.id+'">Break</button>'+
         '<button class="btn xs" data-action="setoos" data-uid="'+u.id+'" style="border-color:rgba(148,163,184,.3);color:var(--text2)">OOS</button>'+
@@ -815,10 +820,10 @@ function buildUnitInCard(u,postColor){
   // Status buttons: call statuses + Clear (if on call)
   var btns=(S.callStatuses||[]).map(function(cs){
     var isA=u.callStatus===cs.k;
-    var style=isA?'background:'+hexRgba(cs.color,.2)+';color:'+cs.color+';border-color:'+cs.color+';':'' ;
+    var style=isA?'background:'+hexRgba(cs.color,.22)+';color:'+cs.color+';border-color:'+cs.color+';font-size:10px;padding:2px 6px;':'';
     return '<button class="stbtn'+(isA?' active':'')+'" style="'+style+'" data-action="setstatus" data-uid="'+u.id+'" data-status="'+cs.k+'">'+cs.l+'</button>';
   }).join('');
-  var clearBtn=u.callStatus?'<button class="stbtn" data-action="setstatus" data-uid="'+u.id+'" data-status="clear" style="border-color:rgba(46,204,128,.4);color:var(--green)">✓ Clear</button>':'';
+  var clearBtn=u.callStatus?'<button class="stbtn" data-action="setstatus" data-uid="'+u.id+'" data-status="clear" style="border-color:rgba(46,204,128,.4);color:var(--green);font-size:9px">✓ Clear</button>':'';
 
   // Timestamp stack
   var tsStack='';
@@ -844,6 +849,7 @@ function buildUnitInCard(u,postColor){
 
 function hexRgb(hex){try{return parseInt(hex.slice(1,3),16)+','+parseInt(hex.slice(3,5),16)+','+parseInt(hex.slice(5,7),16)}catch(e){return'106,163,255'}}
 function hexRgba(hex,a){return'rgba('+hexRgb(hex)+','+a+')'}
+function escHtml(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
 
 // ── UNITS TAB ──────────────────────────────────────────
 function renderUnitsTab(){
@@ -1078,6 +1084,15 @@ document.getElementById('notesArea').addEventListener('input',function(){
   S.notes=this.value;save();
 });
 
+// Unit notes - save on input without re-rendering (preserves cursor)
+document.getElementById('unitSidebar').addEventListener('input',function(e){
+  if(e.target.dataset.action==='unitnote'){
+    var u=gu(e.target.dataset.uid);if(!u)return;
+    u.notes=e.target.value;
+    save(); // save to cloud, don't re-render (would reset textarea)
+  }
+});
+
 // ── INIT ───────────────────────────────────────────────
 (async function(){
   setSS('busy','Connecting…');
@@ -1088,7 +1103,8 @@ document.getElementById('notesArea').addEventListener('input',function(){
   if(!S.postOrder)S.postOrder=S.posts.map(function(p){return p.id});
   if(!S.resourceOrder)S.resourceOrder=S.resources.map(function(r){return r.id});
   if(!S.notes)S.notes='';
-  // Default units 341-345 if none
+  // Ensure all units have notes field
+  S.units.forEach(function(u){if(u.notes===undefined)u.notes=''});
   if(!S.units.length){
     ['341','342','343','344','345'].forEach(function(cs){
       var u=mkUnit(cs,'');S.units.push(u);
